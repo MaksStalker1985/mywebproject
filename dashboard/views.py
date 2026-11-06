@@ -13,13 +13,13 @@ from django.views.generic import CreateView, DeleteView, ListView, TemplateView,
 
 from accounts import roles
 from catalog.models import Product
-from core.models import ContactMessage
+from core.models import ContactMessage, Page
 from forum.models import Category, Topic
 from payments.models import Order
 
 from accounts.models import Role
 
-from .forms import CategoryForm, ProductForm, RoleForm
+from .forms import CategoryForm, PageForm, ProductForm, RoleForm
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -302,6 +302,50 @@ class RoleDeleteView(StaffRequiredMixin, View):
         messages.success(request, _("Группа «%(role)s» удалена, её участники перенесены в «%(default)s».") % {
             "role": title, "default": default.display_title})
         return redirect("dashboard:roles")
+
+
+# --- Информационные страницы ---
+
+class PageListView(StaffRequiredMixin, ListView):
+    template_name = "dashboard/page_list.html"
+    queryset = Page.objects.order_by("order", "slug")
+
+
+class PageCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Page
+    form_class = PageForm
+    template_name = "dashboard/form.html"
+    success_url = reverse_lazy("dashboard:pages")
+    success_message = gettext_lazy("Страница «%(obj)s» создана.")
+    extra_context = {"heading": gettext_lazy("Новая страница"), "back_url": reverse_lazy("dashboard:pages")}
+
+
+class PageUpdateView(StaffRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Page
+    form_class = PageForm
+    template_name = "dashboard/form.html"
+    success_url = reverse_lazy("dashboard:pages")
+    success_message = gettext_lazy("Страница «%(obj)s» сохранена.")
+    extra_context = {"back_url": reverse_lazy("dashboard:pages"), "delete_url_name": "dashboard:page_delete"}
+
+
+class PageDeleteView(StaffRequiredMixin, DeleteView):
+    model = Page
+    template_name = "dashboard/confirm_delete.html"
+    success_url = reverse_lazy("dashboard:pages")
+
+
+class OrderRefundView(StaffRequiredMixin, View):
+    """Отметить оплаченный заказ как возвращённый — доступ к скачиванию закрывается.
+    Сами деньги возвращаются в кабинете Paddle/Stripe."""
+
+    def post(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+        if order.status == Order.Status.PAID:
+            Order.objects.filter(pk=pk, status=Order.Status.PAID).update(status=Order.Status.REFUNDED)
+            messages.success(request, _("Заказ #%(pk)s отмечен как возвращённый. Не забудьте вернуть деньги "
+                                        "в кабинете платёжной системы.") % {"pk": pk})
+        return redirect(request.POST.get("next") or "dashboard:orders")
 
 
 class OrderListView(StaffRequiredMixin, ListView):

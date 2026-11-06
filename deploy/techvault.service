@@ -1,21 +1,21 @@
-# systemd-сервис: gunicorn для GameHub. Устанавливается в /etc/systemd/system/gamehub.service
+# systemd-сервис: gunicorn для TechVault. Устанавливается в /etc/systemd/system/techvault.service
 [Unit]
-Description=GameHub (Django + gunicorn)
+Description=TechVault (Django + gunicorn)
 After=network.target postgresql.service redis-server.service
 Wants=postgresql.service redis-server.service
 
 [Service]
 Type=notify
-User=gamehub
+User=techvault
 # Группа www-data: nginx читает сокет и загруженные файлы
 Group=www-data
 UMask=0027
-WorkingDirectory=/srv/gamehub/app
-EnvironmentFile=/etc/gamehub/gamehub.env
-RuntimeDirectory=gamehub
+WorkingDirectory=/srv/techvault/app
+EnvironmentFile=/etc/techvault/techvault.env
+RuntimeDirectory=techvault
 RuntimeDirectoryMode=0750
-ExecStart=/srv/gamehub/venv/bin/gunicorn config.wsgi:application \
-    --bind unix:/run/gamehub/gunicorn.sock \
+ExecStart=/srv/techvault/venv/bin/gunicorn config.wsgi:application \
+    --bind unix:/run/techvault/gunicorn.sock \
     --workers 3 \
     --timeout 120 \
     --max-requests 1000 --max-requests-jitter 100 \
@@ -30,7 +30,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/srv/gamehub/media
+ReadWritePaths=/srv/techvault/media
 ProtectKernelTunables=true
 ProtectControlGroups=true
 

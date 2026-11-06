@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Role
 from catalog.models import Product
+from core.models import Page
 from forum.models import Category, CategoryAccess
 
 
@@ -124,3 +125,17 @@ class RoleForm(forms.ModelForm):
             else:
                 CategoryAccess.objects.update_or_create(role=role, category=cat, defaults={"level": level})
         return role
+
+
+class PageForm(forms.ModelForm):
+    class Meta:
+        model = Page
+        fields = ["slug", "order", "title_ru", "title_en", "title_uk", "body_ru", "body_en", "body_uk",
+                  "show_in_footer", "is_published"]
+        widgets = {f"body_{lang}": forms.Textarea(attrs={"rows": 14}) for lang in ("ru", "en", "uk")}
+        help_texts = {
+            "body_ru": _("Пустая строка — новый абзац, «## » в начале строки — подзаголовок, «- » — пункт списка. "
+                         "Ссылки и e-mail становятся кликабельными."),
+            "body_en": _("Пусто — показывается русский текст."),
+            "body_uk": _("Пусто — показывается русский текст."),
+        }

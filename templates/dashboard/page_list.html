@@ -1,0 +1,24 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Страницы" %}{% endblock %}
+
+{% block dash %}
+<div class="section-head">
+  <h1>{% translate "Страницы" %}</h1>
+  <a class="btn" href="{% url 'dashboard:page_create' %}">+ {% translate "Новая страница" %}</a>
+</div>
+<p class="muted small">{% translate "Условия использования, политика конфиденциальности, правила возврата и другие тексты. Платёжные системы требуют, чтобы эти страницы были на сайте." %}</p>
+<div class="table dash-table cols-4">
+  <div class="row head"><span>{% translate "Страница" %}</span><span>{% translate "Порядок" %}</span><span>{% translate "Статус" %}</span><span></span></div>
+  {% for p in object_list %}
+    <div class="row">
+      <span><a class="row-title" href="{% url 'dashboard:page_edit' p.pk %}">{{ p.title }}</a><small class="muted">{{ p.get_absolute_url }}</small></span>
+      <span>{{ p.order }}</span>
+      <span>{% if p.is_published %}{% translate "опубликовано" %}{% else %}<span class="muted">{% translate "черновик" %}</span>{% endif %}</span>
+      <span class="row-actions"><a href="{{ p.get_absolute_url }}" target="_blank">↗</a><a href="{% url 'dashboard:page_edit' p.pk %}">{% translate "Изменить" %}</a></span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Страниц пока нет." %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

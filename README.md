@@ -1,4 +1,6 @@
-# GameHub — сайт распространения игр и ПО
+# TechVault — сайт распространения игр и ПО
+
+Боевой адрес: https://techvault.tech · поддержка: support@techvault.tech
 
 Веб-сервер на Django 5.2: каталог игр и программ со скачиванием, форум с доступом по учётной записи,
 форма связи с производителем. Интерфейс на трёх языках: русском, английском и украинском.
@@ -12,6 +14,7 @@
 | Карточка продукта и скачивание | `/ru/catalog/<slug>/`, `/ru/catalog/<slug>/download/` | все |
 | Форум | `/ru/forum/` | **только после входа** |
 | Связь с производителем | `/ru/contact/` | все |
+| Условия, конфиденциальность, возвраты | `/ru/p/terms/`, `/ru/p/privacy/`, `/ru/p/refunds/` | все |
 | Вход / регистрация | `/ru/accounts/login/`, `/ru/accounts/signup/` | — |
 | Восстановление пароля по e-mail | `/ru/accounts/password/reset/` | все |
 | **Личный кабинет**: библиотека, история покупок, профиль | `/ru/accounts/cabinet/`, `/ru/accounts/cabinet/orders/`, `/ru/accounts/profile/` | после входа |
@@ -125,7 +128,7 @@ $env:EMAIL_PORT = "587"
 $env:EMAIL_HOST_USER = "noreply@example.com"
 $env:EMAIL_HOST_PASSWORD = "..."
 $env:EMAIL_USE_TLS = "1"
-$env:DEFAULT_FROM_EMAIL = "GameHub <noreply@example.com>"
+$env:DEFAULT_FROM_EMAIL = "TechVault <noreply@example.com>"
 ```
 
 Ссылка в письме строится по адресу, с которого пришёл запрос, поэтому в продакшене задайте
@@ -144,6 +147,8 @@ $env:DEFAULT_FROM_EMAIL = "GameHub <noreply@example.com>"
 - **Обращения** — сообщения из формы связи, отметка «обработано».
 - **Заказы** — все покупки с фильтром по статусу.
 - **Пользователи** — поиск, фильтр по группе, перевод пользователя в другую группу.
+- **Страницы** — тексты условий, политики конфиденциальности, возвратов и т.п. на трёх языках.
+- **Заказы → Возврат** — отметить заказ как возвращённый (доступ к скачиванию закрывается; деньги возвращаются в кабинете Paddle/Stripe).
 - **Группы и доступ** — права групп и доступ к разделам форума (см. выше).
 - В форме продукта есть флаг **«Тестовая сборка»**.
 
@@ -239,5 +244,5 @@ LiqPay, WayForPay, Fondy и т.п. подключаются отдельным �
 
 ```bash
 sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
-sudo gamehub-manage createsuperuser
+sudo techvault-manage createsuperuser
 ```

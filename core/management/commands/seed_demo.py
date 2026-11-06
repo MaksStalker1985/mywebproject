@@ -18,34 +18,34 @@ from forum.models import Category, Post, Topic
 
 PRODUCTS = [
     dict(kind="game", slug="star-drift", title="Star Drift", genre="Космический симулятор", platform="windows",
-         version="2.3.1", is_featured=True, developer="GameHub Studio", price=Decimal("349"),
+         version="2.3.1", is_featured=True, developer="TechVault Studio", price=Decimal("349"),
          short_description="Исследуйте галактику, торгуйте и сражайтесь в открытом космосе.",
          description="Star Drift — космическая песочница с процедурно генерируемыми системами.\n\n"
                      "• Более 400 звёздных систем\n• Торговля и найм экипажа\n• Кооператив до 4 игроков"),
     dict(kind="game", slug="pixel-knights", title="Pixel Knights", genre="Платформер", platform="cross",
-         version="1.0.4", is_featured=True, developer="GameHub Studio",
+         version="1.0.4", is_featured=True, developer="TechVault Studio",
          short_description="Ретро-платформер с пиксельной графикой и боссами старой школы.",
          description="Пройдите 60 уровней в пяти мирах, собирайте снаряжение и победите Тёмного короля."),
     dict(kind="game", slug="city-architect", title="City Architect", genre="Стратегия", platform="windows",
-         version="0.9-beta", developer="GameHub Studio", price=Decimal("199"),
+         version="0.9-beta", developer="TechVault Studio", price=Decimal("199"),
          short_description="Градостроительный симулятор с реалистичной экономикой.",
          description="Стройте районы, прокладывайте транспорт и следите за счастьем жителей."),
     dict(kind="software", slug="hub-launcher", title="Hub Launcher", genre="Утилиты", platform="windows",
-         version="4.1.0", is_featured=True, developer="GameHub",
+         version="4.1.0", is_featured=True, developer="TechVault",
          short_description="Лаунчер для установки и автообновления всех наших игр.",
          description="Hub Launcher автоматически скачивает обновления, проверяет целостность файлов "
                      "и синхронизирует сохранения в облаке."),
     dict(kind="software", slug="mod-studio", title="Mod Studio", genre="Разработка", platform="cross",
-         version="1.6.2", developer="GameHub", price=Decimal("99.50"),
+         version="1.6.2", developer="TechVault", price=Decimal("99.50"),
          short_description="Официальный редактор модификаций для Star Drift и City Architect.",
          description="Создавайте собственные карты, корабли и сценарии, публикуйте их для сообщества."),
     dict(kind="software", slug="frame-meter", title="Frame Meter", genre="Диагностика", platform="windows",
-         version="2.0.0", is_featured=True, developer="GameHub",
+         version="2.0.0", is_featured=True, developer="TechVault",
          short_description="Лёгкий оверлей FPS и мониторинг загрузки CPU/GPU.",
          description="Показывает частоту кадров, время кадра и температуру компонентов поверх любой игры."),
     # Тестовая сборка: не опубликована, видна только тестерам и администраторам
     dict(kind="game", slug="star-drift-3-beta", title="Star Drift 3 (beta)", genre="Космический симулятор",
-         platform="windows", version="3.0.0-beta.2", developer="GameHub Studio", price=Decimal("499"),
+         platform="windows", version="3.0.0-beta.2", developer="TechVault Studio", price=Decimal("499"),
          is_published=False, for_testers=True,
          short_description="Закрытая бета третьей части: новые корабли и планетарные высадки.",
          description="Сборка для группы тестеров. Сообщайте о найденных ошибках в разделе форума "
@@ -63,7 +63,7 @@ CATEGORIES = [
 def demo_archive(product):
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as zf:
-        zf.writestr("README.txt", f"{product['title']} {product['version']}\nДемо-файл GameHub.\n")
+        zf.writestr("README.txt", f"{product['title']} {product['version']}\nДемо-файл TechVault.\n")
     return ContentFile(buf.getvalue(), name=f"{product['slug']}-{product['version']}.zip")
 
 
@@ -89,16 +89,16 @@ class Command(BaseCommand):
             Category.objects.get_or_create(slug=slug, defaults={"title": title, "description": desc, "order": order})
 
         admin, created = User.objects.get_or_create(
-            username="admin", defaults={"email": "admin@gamehub.local", "is_staff": True, "is_superuser": True}
+            username="admin", defaults={"email": "admin@techvault.local", "is_staff": True, "is_superuser": True}
         )
         if created:
             admin.set_password("admin12345")
             admin.save()
-        player, created = User.objects.get_or_create(username="player", defaults={"email": "player@gamehub.local"})
+        player, created = User.objects.get_or_create(username="player", defaults={"email": "player@techvault.local"})
         if created:
             player.set_password("player12345")
             player.save()
-        tester, created = User.objects.get_or_create(username="tester", defaults={"email": "tester@gamehub.local"})
+        tester, created = User.objects.get_or_create(username="tester", defaults={"email": "tester@techvault.local"})
         if created:
             tester.set_password("tester12345")
             tester.save()
@@ -108,7 +108,7 @@ class Command(BaseCommand):
 
         if not Topic.objects.exists():
             news = Category.objects.get(slug="news")
-            t = Topic.objects.create(category=news, author=admin, title="Добро пожаловать на форум GameHub!", is_pinned=True)
+            t = Topic.objects.create(category=news, author=admin, title="Добро пожаловать на форум TechVault!", is_pinned=True)
             Post.objects.create(topic=t, author=admin, body="Здесь вы можете обсуждать наши игры и программы, "
                                                              "задавать вопросы и делиться модами. Соблюдайте правила!")
             Post.objects.create(topic=t, author=player, body="Привет всем! Жду обновления Star Drift :)")

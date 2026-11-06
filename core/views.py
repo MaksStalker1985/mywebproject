@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.shortcuts import redirect, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import cache_page
 from django.utils.translation import gettext as _
 
 from catalog.models import Product
@@ -9,6 +11,7 @@ from forum import access as forum_access
 from forum.models import Topic
 
 from .forms import ContactForm
+from .models import Page
 
 
 def home(request):
@@ -33,7 +36,7 @@ def contact(request):
     if request.method == "POST" and form.is_valid():
         msg = form.save()
         send_mail(
-            subject=f"[GameHub] {msg.get_topic_display()} — {msg.name}",
+            subject=f"[TechVault] {msg.get_topic_display()} — {msg.name}",
             message=f"{msg.message}\n\n{msg.name} <{msg.email}>\n{msg.product or ''}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[settings.CONTACT_EMAIL],
@@ -42,3 +45,25 @@ def contact(request):
         messages.success(request, _("Спасибо! Ваше сообщение отправлено, мы ответим в ближайшее время."))
         return redirect("core:contact")
     return render(request, "core/contact.html", {"form": form, "contact_email": settings.CONTACT_EMAIL})
+
+
+def page(request, slug):
+    """Информационная страница: условия, конфиденциальность, возвраты и т.п."""
+    obj = get_object_or_404(Page, slug=slug, is_published=True)
+    return render(request, "core/page.html", {"page": obj})
+
+
+@cache_page(60 * 60)
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /*/manage/",
+        "Disallow: /*/admin/",
+        "Disallow: /*/accounts/",
+        "Disallow: /*/payments/",
+        "Disallow: /payments/",
+        "Disallow: /*/forum/",
+        "",
+        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+    ]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")

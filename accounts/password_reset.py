@@ -45,7 +45,7 @@ class PasswordResetView(auth_views.PasswordResetView):
     html_email_template_name = "accounts/email/password_reset.html"
     subject_template_name = "accounts/email/password_reset_subject.txt"
     success_url = reverse_lazy("accounts:password_reset_done")
-    extra_email_context = {"site_name": "GameHub"}
+    extra_email_context = {"site_name": "TechVault"}
 
     def form_valid(self, form):
         ip = self.request.META.get("REMOTE_ADDR", "")
@@ -74,11 +74,11 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
         response = super().form_valid(form)
         user = form.user
         if user.email:
-            context = {"user": user, "site_name": "GameHub",
+            context = {"user": user, "site_name": "TechVault",
                        "login_url": self.request.build_absolute_uri(str(reverse_lazy("accounts:login"))),
                        "contact_url": self.request.build_absolute_uri(str(reverse_lazy("core:contact")))}
             send_mail(
-                subject=_("Пароль на GameHub изменён"),
+                subject=_("Пароль на TechVault изменён"),
                 message=render_to_string("accounts/email/password_changed.txt", context),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Первичная установка GameHub на Ubuntu Server 22.04 / 24.04.
+# Первичная установка TechVault на Ubuntu Server 22.04 / 24.04.
 #
 #   sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
 #
@@ -7,18 +7,22 @@
 #   DOMAIN             — домен сайта (обязательно; DNS A-запись должна указывать на этот сервер)
 #   WWW=1              — также обслуживать www.DOMAIN
 #   LETSENCRYPT_EMAIL  — e-mail для Let's Encrypt; если не задан, HTTPS не настраивается
-#   REPO_URL           — git-репозиторий; если не задан, код должен уже лежать в /srv/gamehub/app
+#   REPO_URL           — git-репозиторий; если не задан, код должен уже лежать в /srv/techvault/app
 #   BRANCH             — ветка (по умолчанию main)
+#   ADMIN_USERNAME     — логин администратора сайта (по умолчанию admin), ADMIN_EMAIL — его e-mail
+#
+# Пароли (почтового ящика и администратора) скрипт спрашивает при запуске — не передавайте их
+# в командной строке, чтобы они не попали в историю shell.
 #
 # Скрипт можно запускать повторно: существующие пароли, база и .env не перезаписываются.
 set -euo pipefail
 
-APP_USER=gamehub
-BASE=/srv/gamehub
+APP_USER=techvault
+BASE=/srv/techvault
 APP_DIR=$BASE/app
 VENV=$BASE/venv
-ENV_DIR=/etc/gamehub
-ENV_FILE=$ENV_DIR/gamehub.env
+ENV_DIR=/etc/techvault
+ENV_FILE=$ENV_DIR/techvault.env
 BRANCH=${BRANCH:-main}
 
 log() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
@@ -36,6 +40,15 @@ if [[ "${WWW:-0}" == "1" ]]; then
     ORIGINS="$ORIGINS,https://www.$DOMAIN"
     CERT_DOMAINS+=(-d "www.$DOMAIN")
 fi
+
+log "Проверка DNS"
+LOCAL_IPS=" $(hostname -I) "
+for ip in $(getent ahostsv4 "$DOMAIN" | awk '{print $1}' | sort -u); do
+    [[ "$LOCAL_IPS" == *" $ip "* ]] || echo "Внимание: A-запись $DOMAIN → $ip, но у сервера другие адреса:$LOCAL_IPS"
+done
+for ip in $(getent ahostsv6 "$DOMAIN" 2>/dev/null | awk '{print $1}' | grep -v '^::ffff:' | sort -u); do
+    [[ "$LOCAL_IPS" == *" $ip "* ]] || echo "Внимание: AAAA-запись $DOMAIN → $ip не принадлежит этому серверу — Let's Encrypt может не выдать сертификат. Исправьте или удалите AAAA-запись."
+done
 
 log "Пакеты"
 export DEBIAN_FRONTEND=noninteractive
@@ -76,10 +89,29 @@ if [[ ! -f $ENV_FILE ]]; then
         -e "s|^DJANGO_CSRF_TRUSTED_ORIGINS=.*|DJANGO_CSRF_TRUSTED_ORIGINS=$ORIGINS|" \
         -e "s|^DJANGO_SECURE_SSL_REDIRECT=.*|DJANGO_SECURE_SSL_REDIRECT=0|" \
         -e "s|example\.com|$DOMAIN|g" \
-        $APP_DIR/deploy/gamehub.env.example > $ENV_FILE
+        $APP_DIR/deploy/techvault.env.example > $ENV_FILE
     chown root:$APP_USER $ENV_FILE
     chmod 640 $ENV_FILE
-    echo "Создан $ENV_FILE — позже впишите в него SMTP и ключи платёжной системы."
+    echo "Создан $ENV_FILE."
+fi
+
+# Пароль почтового ящика (SMTP) — спрашиваем, если он ещё не задан
+if grep -q '^EMAIL_HOST_PASSWORD=$' $ENV_FILE && [[ -t 0 ]]; then
+    SMTP_USER=$(sed -n 's/^EMAIL_HOST_USER=//p' $ENV_FILE)
+    read -rsp "Пароль почтового ящика $SMTP_USER (Enter — пропустить): " SMTP_PASS; echo
+    if [[ -n "$SMTP_PASS" ]]; then
+        [[ "$SMTP_PASS" != *"'"* ]] || die "пароль с апострофом (') не поддерживается в файле настроек"
+        SMTP_PASS="$SMTP_PASS" python3 - "$ENV_FILE" <<'PY'
+import os, sys
+path = sys.argv[1]
+lines = open(path, encoding="utf-8").read().splitlines()
+pw = os.environ["SMTP_PASS"]
+lines = [f"EMAIL_HOST_PASSWORD='{pw}'" if l == "EMAIL_HOST_PASSWORD=" else l for l in lines]
+open(path, "w", encoding="utf-8").write("\n".join(lines) + "\n")
+PY
+        unset SMTP_PASS
+        echo "Пароль почты сохранён в $ENV_FILE (доступен только root и сервису)."
+    fi
 fi
 # shellcheck disable=SC1090
 set -a; . $ENV_FILE; set +a
@@ -93,42 +125,58 @@ if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$POSTG
 fi
 systemctl enable --now redis-server postgresql
 
-log "Команда gamehub-manage (manage.py от имени сервиса)"
-cat > /usr/local/bin/gamehub-manage <<'EOF'
+log "Команда techvault-manage (manage.py от имени сервиса)"
+cat > /usr/local/bin/techvault-manage <<'EOF'
 #!/bin/sh
-# Запуск manage.py с настройками сервиса: sudo gamehub-manage createsuperuser
-exec sudo -u gamehub sh -c 'set -a; . /etc/gamehub/gamehub.env; set +a; cd /srv/gamehub/app && exec /srv/gamehub/venv/bin/python manage.py "$@"' sh "$@"
+# Запуск manage.py с настройками сервиса: sudo techvault-manage createsuperuser
+exec sudo -u techvault sh -c 'set -a; . /etc/techvault/techvault.env; set +a; cd /srv/techvault/app && exec /srv/techvault/venv/bin/python manage.py "$@"' sh "$@"
 EOF
-chmod 755 /usr/local/bin/gamehub-manage
+chmod 755 /usr/local/bin/techvault-manage
 
 log "Миграции и статика"
-gamehub-manage compilemessages -v 0 || echo "compilemessages пропущен — используются готовые .mo"
-gamehub-manage migrate --noinput
-gamehub-manage collectstatic --noinput -v 0
-gamehub-manage check --deploy --fail-level ERROR
+techvault-manage compilemessages -v 0 || echo "compilemessages пропущен — используются готовые .mo"
+techvault-manage migrate --noinput
+techvault-manage collectstatic --noinput -v 0
+techvault-manage check --deploy --fail-level ERROR
+
+log "Администратор сайта"
+if [[ "$(techvault-manage shell -c 'from django.contrib.auth.models import User; print(User.objects.filter(is_superuser=True).exists())' 2>/dev/null | tail -1)" != "True" ]]; then
+    if [[ -t 0 ]]; then
+        echo "Создаём администратора. Придумайте надёжный пароль (его спросят дважды)."
+        techvault-manage createsuperuser --username "${ADMIN_USERNAME:-admin}" --email "${ADMIN_EMAIL:-support@$DOMAIN}"
+    else
+        echo "Нет администратора — создайте: sudo techvault-manage createsuperuser"
+    fi
+else
+    echo "Администратор уже есть."
+fi
 
 log "systemd"
-install -m 644 $APP_DIR/deploy/gamehub.service /etc/systemd/system/gamehub.service
+install -m 644 $APP_DIR/deploy/techvault.service /etc/systemd/system/techvault.service
 systemctl daemon-reload
-systemctl enable gamehub
-systemctl restart gamehub
+systemctl enable techvault
+systemctl restart techvault
 
 log "nginx"
 # Существующий конфиг не трогаем: в нём HTTPS-настройки, добавленные certbot (FORCE_NGINX=1 — перезаписать)
-if [[ ! -f /etc/nginx/sites-available/gamehub || "${FORCE_NGINX:-0}" == "1" ]]; then
+if [[ ! -f /etc/nginx/sites-available/techvault || "${FORCE_NGINX:-0}" == "1" ]]; then
     sed -e "s|server_name example.com;|server_name ${HOSTS//,/ };|" \
-        $APP_DIR/deploy/nginx-gamehub.conf > /etc/nginx/sites-available/gamehub
+        $APP_DIR/deploy/nginx-techvault.conf > /etc/nginx/sites-available/techvault
 fi
-ln -sf /etc/nginx/sites-available/gamehub /etc/nginx/sites-enabled/gamehub
+ln -sf /etc/nginx/sites-available/techvault /etc/nginx/sites-enabled/techvault
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl reload nginx
+
+if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
+    ufw allow "Nginx Full" >/dev/null && echo "ufw: открыты порты 80 и 443"
+fi
 
 if [[ -n "${LETSENCRYPT_EMAIL:-}" ]]; then
     log "HTTPS (Let's Encrypt)"
     certbot --nginx "${CERT_DOMAINS[@]}" --redirect --agree-tos --non-interactive -m "$LETSENCRYPT_EMAIL"
     sed -i "s|^DJANGO_SECURE_SSL_REDIRECT=.*|DJANGO_SECURE_SSL_REDIRECT=1|" $ENV_FILE
-    systemctl restart gamehub
+    systemctl restart techvault
 else
     echo "LETSENCRYPT_EMAIL не задан — сайт работает по HTTP. Для HTTPS запустите скрипт ещё раз с LETSENCRYPT_EMAIL."
 fi
@@ -138,8 +186,8 @@ cat <<EOF
 Сайт: http${LETSENCRYPT_EMAIL:+s}://$DOMAIN/
 
 Дальше:
-  1. Создайте администратора:            sudo gamehub-manage createsuperuser
-  2. Впишите SMTP и ключи платежей в:    sudo nano $ENV_FILE  →  sudo systemctl restart gamehub
-  3. Журнал сервиса:                     sudo journalctl -u gamehub -f
+  1. Проверьте почту: войдите на сайт → «Забыли пароль?» или отправьте форму «Связь с производителем».
+  2. Ключи платёжной системы:            sudo nano $ENV_FILE  →  sudo systemctl restart techvault
+  3. Журнал сервиса:                     sudo journalctl -u techvault -f
   4. Обновление после изменений в коде:  sudo bash $APP_DIR/deploy/update.sh
 EOF

@@ -1,4 +1,4 @@
-"""Настройки проекта GameHub — портал распространения игр и ПО."""
+"""Настройки проекта TechVault — портал распространения игр и ПО."""
 import os
 from pathlib import Path
 
@@ -12,7 +12,7 @@ def env_list(name, default=""):
     return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
 
 
-# Все настройки для продакшена задаются переменными окружения (см. deploy/gamehub.env.example).
+# Все настройки для продакшена задаются переменными окружения (см. deploy/techvault.env.example).
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 if not SECRET_KEY:
@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "core",
     "catalog",
     "forum",
@@ -63,6 +64,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "accounts.context_processors.user_role",
+                "core.context_processors.site",
             ],
         },
     },
@@ -145,12 +147,16 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "1") == "1"
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "GameHub <noreply@gamehub.local>")
+# 587 + STARTTLS (EMAIL_USE_TLS=1) или 465 + SSL (EMAIL_USE_SSL=1, как у Hostinger Mail)
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "0") == "1"
+EMAIL_USE_TLS = not EMAIL_USE_SSL and os.environ.get("EMAIL_USE_TLS", "1") == "1"
+EMAIL_TIMEOUT = 20
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "TechVault <noreply@techvault.local>")
+SERVER_EMAIL = os.environ.get("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
 # Ссылка для сброса пароля действует 2 часа
 PASSWORD_RESET_TIMEOUT = 2 * 60 * 60
-CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "support@gamehub.local")
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "support@techvault.tech")
 
 # --- Платежи ---
 # "demo" — имитация оплаты (только при DEBUG), "stripe" — Stripe Checkout, "paddle" — Paddle Billing.
