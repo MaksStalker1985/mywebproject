@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Скрипты и конфиги для Linux-сервера — всегда с LF, иначе bash/systemd/nginx их не прочитают
+*.sh text eol=lf
+deploy/* text eol=lf

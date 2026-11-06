@@ -1,0 +1,38 @@
+# systemd-сервис: gunicorn для GameHub. Устанавливается в /etc/systemd/system/gamehub.service
+[Unit]
+Description=GameHub (Django + gunicorn)
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=notify
+User=gamehub
+# Группа www-data: nginx читает сокет и загруженные файлы
+Group=www-data
+UMask=0027
+WorkingDirectory=/srv/gamehub/app
+EnvironmentFile=/etc/gamehub/gamehub.env
+RuntimeDirectory=gamehub
+RuntimeDirectoryMode=0750
+ExecStart=/srv/gamehub/venv/bin/gunicorn config.wsgi:application \
+    --bind unix:/run/gamehub/gunicorn.sock \
+    --workers 3 \
+    --timeout 120 \
+    --max-requests 1000 --max-requests-jitter 100 \
+    --access-logfile - \
+    --forwarded-allow-ips="*"
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# Ограничения: сервис может писать только в media
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/gamehub/media
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

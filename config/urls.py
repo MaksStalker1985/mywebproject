@@ -28,4 +28,6 @@ urlpatterns += i18n_patterns(
 )
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Публичны только обложки и аватары; установочные файлы (downloads/) выдаются после проверки покупки
+    for public_dir in ("covers", "avatars"):
+        urlpatterns += static(f"{settings.MEDIA_URL}{public_dir}/", document_root=settings.MEDIA_ROOT / public_dir)

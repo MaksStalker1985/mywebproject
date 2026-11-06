@@ -6,9 +6,10 @@ import io
 import zipfile
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from accounts import roles
@@ -69,8 +70,15 @@ def demo_archive(product):
 class Command(BaseCommand):
     help = "Создаёт демонстрационные данные"
 
+    def add_arguments(self, parser):
+        parser.add_argument("--force", action="store_true",
+                            help="Запустить при DJANGO_DEBUG=0 (создаёт пользователей с известными паролями!)")
+
     @transaction.atomic
     def handle(self, *args, **options):
+        if not settings.DEBUG and not options["force"]:
+            raise CommandError("seed_demo создаёт пользователей с известными паролями и не запускается "
+                               "при DJANGO_DEBUG=0. Для администратора используйте createsuperuser.")
         for data in PRODUCTS:
             product, created = Product.objects.get_or_create(slug=data["slug"], defaults=data)
             if created:

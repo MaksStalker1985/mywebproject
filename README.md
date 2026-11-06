@@ -232,9 +232,12 @@ LiqPay, WayForPay, Fondy и т.п. подключаются отдельным �
 Сейчас переводится интерфейс; названия и описания продуктов хранятся на одном языке. Для перевода
 контента можно подключить `django-modeltranslation`.
 
-## Перед продакшеном
+## Развёртывание на сервере
 
-Задайте переменные окружения `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`,
-`CONTACT_EMAIL` и SMTP-бэкенд (`DJANGO_EMAIL_BACKEND` + настройки `EMAIL_*`). Выполните
-`manage.py collectstatic` и отдавайте `static/` и `media/` через веб-сервер (nginx и т.п.); в `media/avatars/` лежат загруженные пользователями аватары. Вместо SQLite
-лучше взять PostgreSQL.
+Пошаговая инструкция для Ubuntu Server (nginx + gunicorn + PostgreSQL + HTTPS) — в [DEPLOY.md](DEPLOY.md),
+конфиги и скрипты — в `deploy/`. Коротко:
+
+```bash
+sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
+sudo gamehub-manage createsuperuser
+```
