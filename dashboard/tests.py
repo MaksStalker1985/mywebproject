@@ -50,7 +50,7 @@ class DashboardTests(TestCase):
         self.client.force_login(self.staff)
         resp = self.client.post(reverse("dashboard:product_create"), {
             "kind": "game", "title": "New Game", "slug": "", "short_description": "short", "description": "long",
-            "version": "1.0", "platform": "windows", "price": "250", "is_published": "on",
+            "version": "1.0", "release_stage": "release", "platform": "windows", "price": "250", "is_published": "on",
             "file": SimpleUploadedFile("setup.zip", b"zipdata"),
         })
         self.assertRedirects(resp, reverse("dashboard:products"))
@@ -64,7 +64,7 @@ class DashboardTests(TestCase):
         self.client.force_login(self.staff)
         p = Product.objects.create(slug="old", title="Old", short_description="s", description="d")
         data = {"kind": "software", "title": "Renamed", "slug": "old", "short_description": "s", "description": "d",
-                "version": "2.0", "platform": "linux", "price": "0"}
+                "version": "2.0", "release_stage": "beta", "platform": "linux", "price": "0"}
         self.client.post(reverse("dashboard:product_edit", args=[p.pk]), data)
         p.refresh_from_db()
         self.assertEqual((p.title, p.version, p.is_published), ("Renamed", "2.0", False))

@@ -23,7 +23,7 @@
   </div>
   {% for p in page_obj %}
     <div class="row">
-      <span><a class="row-title" href="{% url 'dashboard:product_edit' p.pk %}">{{ p.title }}</a><small class="muted">{{ p.get_kind_display }} · v{{ p.version }} · {{ p.get_platform_display }}</small></span>
+      <span><a class="row-title" href="{% url 'dashboard:product_edit' p.pk %}">{{ p.title }}</a><small class="muted">{{ p.get_kind_display }} · v{{ p.version }} ({{ p.get_release_stage_display }}) · {{ p.get_platform_display }}</small></span>
       <span>{% if p.is_free %}{% translate "Бесплатно" %}{% else %}{{ p.price|floatformat:"-2" }} {{ p.currency }}{% endif %}</span>
       <span>{{ p.sales }}</span>
       <span>{{ p.download_count }}</span>

@@ -17,9 +17,14 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             "kind", "title", "slug", "genre", "short_description", "description", "developer",
-            "version", "platform", "price", "cover", "file", "is_featured", "is_published", "for_testers",
+            "version", "release_stage", "platform", "price", "cover", "file", "changelog", "system_requirements",
+            "is_featured", "is_published", "for_testers",
         ]
-        widgets = {"description": forms.Textarea(attrs={"rows": 8})}
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 10}),
+            "changelog": forms.Textarea(attrs={"rows": 6}),
+            "system_requirements": forms.Textarea(attrs={"rows": 6}),
+        }
         help_texts = {"slug": _("Часть адреса страницы. Оставьте пустым — заполнится из названия.")}
 
     def __init__(self, *args, **kwargs):

@@ -21,13 +21,16 @@ PRODUCTS = [
          version="2.3.1", is_featured=True, developer="TechVault Studio", price=Decimal("349"),
          short_description="Исследуйте галактику, торгуйте и сражайтесь в открытом космосе.",
          description="Star Drift — космическая песочница с процедурно генерируемыми системами.\n\n"
-                     "• Более 400 звёздных систем\n• Торговля и найм экипажа\n• Кооператив до 4 игроков"),
+                     "- Более 400 звёздных систем\n- Торговля и найм экипажа\n- Кооператив до 4 игроков",
+         changelog="- Новый сектор «Туманность Ориона»\n- Улучшен кооператив\n- Исправлены вылеты при прыжке",
+         system_requirements="- ОС: Windows 10 64-bit\n- Процессор: 4 ядра, 3 ГГц\n- Память: 8 ГБ\n"
+                             "- Видеокарта: GTX 1060 / RX 580\n- Место на диске: 12 ГБ"),
     dict(kind="game", slug="pixel-knights", title="Pixel Knights", genre="Платформер", platform="cross",
          version="1.0.4", is_featured=True, developer="TechVault Studio",
          short_description="Ретро-платформер с пиксельной графикой и боссами старой школы.",
          description="Пройдите 60 уровней в пяти мирах, собирайте снаряжение и победите Тёмного короля."),
     dict(kind="game", slug="city-architect", title="City Architect", genre="Стратегия", platform="windows",
-         version="0.9-beta", developer="TechVault Studio", price=Decimal("199"),
+         version="0.9-beta", release_stage="beta", developer="TechVault Studio", price=Decimal("199"),
          short_description="Градостроительный симулятор с реалистичной экономикой.",
          description="Стройте районы, прокладывайте транспорт и следите за счастьем жителей."),
     dict(kind="software", slug="hub-launcher", title="Hub Launcher", genre="Утилиты", platform="windows",
@@ -45,7 +48,7 @@ PRODUCTS = [
          description="Показывает частоту кадров, время кадра и температуру компонентов поверх любой игры."),
     # Тестовая сборка: не опубликована, видна только тестерам и администраторам
     dict(kind="game", slug="star-drift-3-beta", title="Star Drift 3 (beta)", genre="Космический симулятор",
-         platform="windows", version="3.0.0-beta.2", developer="TechVault Studio", price=Decimal("499"),
+         platform="windows", version="3.0.0-beta.2", release_stage="beta", developer="TechVault Studio", price=Decimal("499"),
          is_published=False, for_testers=True,
          short_description="Закрытая бета третьей части: новые корабли и планетарные высадки.",
          description="Сборка для группы тестеров. Сообщайте о найденных ошибках в разделе форума "

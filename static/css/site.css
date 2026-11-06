@@ -479,3 +479,24 @@ select option { background: #10132a; }
 .error-page .eyebrow { font-size: 1rem; }
 .form .field label a { font-weight: 600; }
 @media (max-width: 640px) { .legal { padding: 22px 18px; } }
+
+/* Версия и стадия выпуска */
+.version-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
+.version { font-size: .82rem; font-weight: 700; color: #c9d1ff; font-variant-numeric: tabular-nums; }
+.version-line-lg .version { font-size: .95rem; }
+.stage {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .2px; border: 1px solid; white-space: nowrap;
+}
+.stage-release { color: var(--ok); border-color: rgba(62, 207, 142, .45); background: rgba(62, 207, 142, .1); }
+.stage-beta { color: var(--warn); border-color: rgba(245, 165, 36, .5); background: rgba(245, 165, 36, .1); }
+.stage-alpha { color: #ff8fb8; border-color: rgba(255, 111, 184, .5); background: rgba(255, 111, 184, .1); }
+.product-card .meta .more { margin-left: auto; color: var(--accent); font-weight: 600; }
+.product-card:hover .meta .more { color: #fff; }
+.stage-note { padding: 10px 14px; border-radius: 10px; font-size: .9rem; border: 1px solid; }
+.stage-note-beta { color: #ffd593; border-color: rgba(245, 165, 36, .45); background: rgba(245, 165, 36, .08); }
+.stage-note-alpha { color: #ffc2da; border-color: rgba(255, 111, 184, .45); background: rgba(255, 111, 184, .08); }
+.product-tabs { position: sticky; top: 72px; z-index: 5; }
+.product-section { margin-bottom: 18px; scroll-margin-top: 130px; }
+.product-section h2 .stage { vertical-align: middle; margin-left: 6px; }
+.product-section ul { padding-left: 20px; }
