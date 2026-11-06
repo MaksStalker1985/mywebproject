@@ -19,9 +19,11 @@ if not SECRET_KEY:
     if not DEBUG:
         raise ImproperlyConfigured("Задайте DJANGO_SECRET_KEY: без него сайт с DJANGO_DEBUG=0 не запускается.")
     SECRET_KEY = "django-insecure-dev-only-change-me-in-production"
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+SITE_DOMAINS = ["techvault.tech", "www.techvault.tech"]
+# Переменная DJANGO_ALLOWED_HOSTS (задаёт install.sh) полностью заменяет это значение
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ",".join(["localhost", "127.0.0.1", *SITE_DOMAINS]))
 # Полные адреса сайта для проверки CSRF за HTTPS-прокси, например https://example.com
-CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(f"https://{d}" for d in SITE_DOMAINS))
 
 INSTALLED_APPS = [
     "django.contrib.admin",
