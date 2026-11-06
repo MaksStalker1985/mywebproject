@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-{% url 'dashboard:index' as d_index %}{% url 'dashboard:products' as d_products %}{% url 'dashboard:categories' as d_categories %}{% url 'dashboard:topics' as d_topics %}{% url 'dashboard:messages' as d_messages %}{% url 'dashboard:orders' as d_orders %}{% url 'dashboard:users' as d_users %}{% url 'dashboard:roles' as d_roles %}
+{% url 'dashboard:index' as d_index %}{% url 'dashboard:products' as d_products %}{% url 'dashboard:categories' as d_categories %}{% url 'dashboard:topics' as d_topics %}{% url 'dashboard:messages' as d_messages %}{% url 'dashboard:orders' as d_orders %}{% url 'dashboard:users' as d_users %}{% url 'dashboard:roles' as d_roles %}{% url 'dashboard:pages' as d_pages %}
 <div class="dash">
   <aside class="dash-nav">
     <h3>{% translate "Панель управления" %}</h3>
@@ -12,6 +12,7 @@
     <a href="{{ d_messages }}" {% if d_messages in request.path %}class="active"{% endif %}>✉ {% translate "Обращения" %}</a>
     <a href="{{ d_orders }}" {% if d_orders in request.path %}class="active"{% endif %}>💳 {% translate "Заказы" %}</a>
     <a href="{{ d_users }}" {% if d_users in request.path %}class="active"{% endif %}>👥 {% translate "Пользователи" %}</a>
+    <a href="{{ d_pages }}" {% if d_pages in request.path %}class="active"{% endif %}>📄 {% translate "Страницы" %}</a>
     <a href="{{ d_roles }}" {% if d_roles in request.path %}class="active"{% endif %}>🛡 {% translate "Группы и доступ" %}</a>
     {% if user.is_superuser %}<a href="{% url 'admin:index' %}">⚙ {% translate "Django admin" %}</a>{% endif %}
   </aside>

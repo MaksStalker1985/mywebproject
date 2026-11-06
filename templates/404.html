@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Страница не найдена" %}{% endblock %}
+
+{% block content %}
+<section class="hero error-page">
+  <div>
+    <span class="eyebrow">404</span>
+    <h1>{% translate "Страница не найдена" %}</h1>
+    <p class="lead">{% translate "Возможно, ссылка устарела или страница была перемещена." %}</p>
+    <div class="hero-actions">
+      <a class="btn btn-lg" href="{% url 'core:home' %}">{% translate "На главную" %}</a>
+      <a class="btn btn-lg btn-ghost" href="{% url 'catalog:list' %}">{% translate "Каталог" %}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

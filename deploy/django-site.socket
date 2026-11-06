@@ -1,0 +1,14 @@
+# TechVault: сокет gunicorn. Устанавливается в /etc/systemd/system/django-site.socket
+# systemd создаёт /run/django-site.sock (непривилегированный процесс не может создать файл в /run)
+# и передаёт его gunicorn; nginx подключается к нему как proxy_pass http://unix:/run/django-site.sock
+[Unit]
+Description=TechVault gunicorn socket
+
+[Socket]
+ListenStream=/run/django-site.sock
+SocketUser=www-data
+SocketGroup=www-data
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target

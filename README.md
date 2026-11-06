@@ -1,4 +1,6 @@
-# GameHub — сайт распространения игр и ПО
+# TechVault — сайт распространения игр и ПО
+
+Боевой адрес: https://techvault.tech · поддержка: support@techvault.tech
 
 Веб-сервер на Django 5.2: каталог игр и программ со скачиванием, форум с доступом по учётной записи,
 форма связи с производителем. Интерфейс на трёх языках: русском, английском и украинском.
@@ -12,6 +14,7 @@
 | Карточка продукта и скачивание | `/ru/catalog/<slug>/`, `/ru/catalog/<slug>/download/` | все |
 | Форум | `/ru/forum/` | **только после входа** |
 | Связь с производителем | `/ru/contact/` | все |
+| Условия, конфиденциальность, возвраты | `/ru/p/terms/`, `/ru/p/privacy/`, `/ru/p/refunds/` | все |
 | Вход / регистрация | `/ru/accounts/login/`, `/ru/accounts/signup/` | — |
 | Восстановление пароля по e-mail | `/ru/accounts/password/reset/` | все |
 | **Личный кабинет**: библиотека, история покупок, профиль | `/ru/accounts/cabinet/`, `/ru/accounts/cabinet/orders/`, `/ru/accounts/profile/` | после входа |
@@ -125,7 +128,7 @@ $env:EMAIL_PORT = "587"
 $env:EMAIL_HOST_USER = "noreply@example.com"
 $env:EMAIL_HOST_PASSWORD = "..."
 $env:EMAIL_USE_TLS = "1"
-$env:DEFAULT_FROM_EMAIL = "GameHub <noreply@example.com>"
+$env:DEFAULT_FROM_EMAIL = "TechVault <noreply@example.com>"
 ```
 
 Ссылка в письме строится по адресу, с которого пришёл запрос, поэтому в продакшене задайте
@@ -144,6 +147,8 @@ $env:DEFAULT_FROM_EMAIL = "GameHub <noreply@example.com>"
 - **Обращения** — сообщения из формы связи, отметка «обработано».
 - **Заказы** — все покупки с фильтром по статусу.
 - **Пользователи** — поиск, фильтр по группе, перевод пользователя в другую группу.
+- **Страницы** — тексты условий, политики конфиденциальности, возвратов и т.п. на трёх языках.
+- **Заказы → Возврат** — отметить заказ как возвращённый (доступ к скачиванию закрывается; деньги возвращаются в кабинете Paddle/Stripe).
 - **Группы и доступ** — права групп и доступ к разделам форума (см. выше).
 - В форме продукта есть флаг **«Тестовая сборка»**.
 
@@ -232,9 +237,12 @@ LiqPay, WayForPay, Fondy и т.п. подключаются отдельным �
 Сейчас переводится интерфейс; названия и описания продуктов хранятся на одном языке. Для перевода
 контента можно подключить `django-modeltranslation`.
 
-## Перед продакшеном
+## Развёртывание на сервере
 
-Задайте переменные окружения `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`,
-`CONTACT_EMAIL` и SMTP-бэкенд (`DJANGO_EMAIL_BACKEND` + настройки `EMAIL_*`). Выполните
-`manage.py collectstatic` и отдавайте `static/` и `media/` через веб-сервер (nginx и т.п.); в `media/avatars/` лежат загруженные пользователями аватары. Вместо SQLite
-лучше взять PostgreSQL.
+Пошаговая инструкция для Ubuntu Server (nginx + gunicorn + PostgreSQL + HTTPS) — в [DEPLOY.md](DEPLOY.md),
+конфиги и скрипты — в `deploy/`. Коротко:
+
+```bash
+sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
+sudo techvault-manage createsuperuser
+```

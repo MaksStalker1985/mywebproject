@@ -86,7 +86,8 @@ class SiteTests(TestCase):
     def test_signup_logs_in_and_opens_forum(self):
         resp = self.client.post(
             reverse("accounts:signup"),
-            {"username": "newbie", "email": "n@example.com", "password1": "Very-str0ng-pass", "password2": "Very-str0ng-pass"},
+            {"username": "newbie", "email": "n@example.com", "password1": "Very-str0ng-pass", "password2": "Very-str0ng-pass",
+             "accept_terms": "on"},
         )
         self.assertRedirects(resp, reverse("accounts:cabinet"))
         self.assertEqual(self.client.get(reverse("forum:index")).status_code, 200)

@@ -1,8 +1,12 @@
+from urllib.parse import quote
+
+from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import F, Q
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext as _
 
 from .models import Product
@@ -68,9 +72,19 @@ def product_download(request, slug):
     if not product.is_available_to(request.user):
         messages.info(request, _("Этот продукт платный. Купите его, чтобы скачать."))
         return redirect(product)
+    filename = product.file.name.rsplit("/", 1)[-1]
+    if settings.DOWNLOADS_ACCEL_PREFIX:
+        # Продакшен: права проверены здесь, сам файл отдаёт nginx из internal-локации
+        if not product.file.storage.exists(product.file.name):
+            raise Http404
+        Product.objects.filter(pk=product.pk).update(download_count=F("download_count") + 1)
+        response = HttpResponse(content_type="application/octet-stream")
+        response["X-Accel-Redirect"] = settings.DOWNLOADS_ACCEL_PREFIX.rstrip("/") + "/" + quote(product.file.name)
+        response["Content-Disposition"] = content_disposition_header(True, filename)
+        return response
     try:
         handle = product.file.open("rb")
     except FileNotFoundError:
         raise Http404
     Product.objects.filter(pk=product.pk).update(download_count=F("download_count") + 1)
-    return FileResponse(handle, as_attachment=True, filename=product.file.name.rsplit("/", 1)[-1])
+    return FileResponse(handle, as_attachment=True, filename=filename)

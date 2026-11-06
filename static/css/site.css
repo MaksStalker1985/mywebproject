@@ -465,3 +465,17 @@ select option { background: #10132a; }
 .cabinet-head { justify-content: flex-start; }
 .cabinet-head .avatar { --size: 64px; }
 @media (max-width: 640px) { .post-author .avatar { --size: 40px !important; } }
+
+/* Информационные страницы, подвал, страницы ошибок */
+.legal { max-width: 860px; margin: 0 auto; padding: 32px 40px; }
+.legal h2 { margin-top: 1.6em; font-size: 1.2rem; }
+.legal ul { padding-left: 20px; }
+.legal li { margin: 4px 0; }
+.footer-row > div { display: flex; flex-direction: column; gap: 4px; }
+.footer-row nav { flex-wrap: wrap; }
+.buy-note { margin-top: 12px; max-width: 520px; }
+.error-page { grid-template-columns: 1fr; text-align: center; padding: 72px 24px; }
+.error-page .hero-actions { justify-content: center; }
+.error-page .eyebrow { font-size: 1rem; }
+.form .field label a { font-weight: 600; }
+@media (max-width: 640px) { .legal { padding: 22px 18px; } }
