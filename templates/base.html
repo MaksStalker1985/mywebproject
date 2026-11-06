@@ -1,0 +1,71 @@
+{% load static i18n avatars %}<!doctype html>
+{% get_current_language as LANG %}
+<html lang="{{ LANG }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} · GameHub</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-row">
+    <a class="logo" href="{% url 'core:home' %}"><span class="logo-mark">▲</span> GameHub</a>
+
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="{% translate 'Меню' %}">
+    <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
+
+    <nav class="main-nav">
+      {% url 'core:home' as home_url %}{% url 'catalog:list' as catalog_url %}{% url 'forum:index' as forum_url %}{% url 'core:contact' as contact_url %}
+      <a href="{{ home_url }}" {% if request.path == home_url %}class="active"{% endif %}>{% translate "Главная" %}</a>
+      <a href="{{ catalog_url }}" {% if catalog_url in request.path %}class="active"{% endif %}>{% translate "Игры / ПО" %}</a>
+      <a href="{{ forum_url }}" {% if forum_url in request.path %}class="active"{% endif %}>{% translate "Форум" %}</a>
+      <a href="{{ contact_url }}" {% if request.path == contact_url %}class="active"{% endif %}>{% translate "Связь с производителем" %}</a>
+    </nav>
+
+    <div class="header-tools">
+      <form action="{% url 'set_language' %}" method="post" class="lang-switch">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% get_available_languages as LANGUAGES %}
+        {% for code, name in LANGUAGES %}
+          <button type="submit" name="language" value="{{ code }}" title="{{ name }}"
+                  {% if code == LANG %}class="current" aria-current="true"{% endif %}>{{ code|upper }}</button>
+        {% endfor %}
+      </form>
+
+      {% if user.is_authenticated %}
+        <a class="user-link" href="{% url 'accounts:cabinet' %}" title="{% translate 'Личный кабинет' %}">{% avatar user 30 %} {{ user.username }}{% if user_role and not user_role.is_default %} <span class="role-badge role-{{ user_role.color }}">{{ user_role_label }}</span>{% endif %}</a>
+        {% if is_site_admin %}<a class="btn btn-sm" href="{% url 'dashboard:index' %}">⚙ {% translate "Панель управления" %}</a>{% endif %}
+        <form action="{% url 'accounts:logout' %}" method="post" class="inline">
+          {% csrf_token %}<button class="btn btn-ghost btn-sm">{% translate "Выйти" %}</button>
+        </form>
+      {% else %}
+        <a class="btn btn-ghost btn-sm" href="{% url 'accounts:login' %}">{% translate "Войти" %}</a>
+        <a class="btn btn-sm" href="{% url 'accounts:signup' %}">{% translate "Регистрация" %}</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main class="container page">
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}<li class="msg msg-{{ message.tags }}">{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-row">
+    <span>© {% now "Y" %} GameHub. {% translate "Игры и программы от производителя." %}</span>
+    <nav>
+      <a href="{% url 'catalog:games' %}">{% translate "Игры" %}</a>
+      <a href="{% url 'catalog:software' %}">{% translate "Программы" %}</a>
+      <a href="{% url 'core:contact' %}">{% translate "Поддержка" %}</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

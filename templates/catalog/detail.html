@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs">
+  <a href="{% url 'catalog:list' %}">{% translate "Каталог" %}</a> /
+  <a href="{% if product.kind == 'game' %}{% url 'catalog:games' %}{% else %}{% url 'catalog:software' %}{% endif %}">{{ product.get_kind_display }}</a>
+</nav>
+
+<article class="product">
+  <div class="cover cover-lg cover-{{ product.kind }}">
+    {% if product.cover %}<img src="{{ product.cover.url }}" alt="{{ product.title }}">{% else %}<span class="cover-letter">{{ product.title|first }}</span>{% endif %}
+  </div>
+  <div class="product-info">
+    <h1>{{ product.title }}</h1>
+    {% if product.is_test_build %}<p><span class="tag tag-warn">🧪 {% translate "Тестовая сборка — видна только тестерам и администраторам" %}</span></p>
+    {% elif not product.is_published %}<p><span class="tag tag-warn">{% translate "Не опубликовано" %}</span></p>{% endif %}
+    <p class="lead">{{ product.short_description }}</p>
+    <dl class="specs">
+      <dt>{% translate "Тип" %}</dt><dd>{{ product.get_kind_display }}{% if product.genre %} · {{ product.genre }}{% endif %}</dd>
+      <dt>{% translate "Разработчик" %}</dt><dd>{{ product.developer|default:"—" }}</dd>
+      <dt>{% translate "Версия" %}</dt><dd>{{ product.version }}</dd>
+      <dt>{% translate "Платформа" %}</dt><dd>{{ product.get_platform_display }}</dd>
+      {% if product.file_size %}<dt>{% translate "Размер" %}</dt><dd>{{ product.file_size|filesizeformat }}</dd>{% endif %}
+      <dt>{% translate "Обновлено" %}</dt><dd>{{ product.updated_at|date:"DATE_FORMAT" }}</dd>
+      <dt>{% translate "Скачиваний" %}</dt><dd>{{ product.download_count }}</dd>
+    </dl>
+    <p class="price-line">
+      {% if product.is_free %}<strong class="free">{% translate "Бесплатно" %}</strong>
+      {% else %}<strong>{{ product.price|floatformat:"-2" }} {{ product.currency }}</strong>
+        {% if purchased %}<span class="tag">✓ {% translate "Куплено" %}</span>
+        {% elif has_access %}<span class="tag">{% blocktranslate with role=user_role_label %}Бесплатно по роли «{{ role }}»{% endblocktranslate %}</span>{% endif %}
+      {% endif %}
+    </p>
+    <div class="hero-actions">
+      {% if not product.file %}
+        <span class="btn btn-lg disabled">{% translate "Скоро будет доступно" %}</span>
+      {% elif has_access %}
+        <a class="btn btn-lg" href="{% url 'catalog:download' product.slug %}">⬇ {% translate "Скачать" %}</a>
+      {% elif user.is_authenticated %}
+        <form method="post" action="{% url 'payments:checkout' product.slug %}" class="inline">
+          {% csrf_token %}
+          <button class="btn btn-lg">💳 {% blocktranslate with price=product.price|floatformat:"-2" currency=product.currency %}Купить за {{ price }} {{ currency }}{% endblocktranslate %}</button>
+        </form>
+      {% else %}
+        <a class="btn btn-lg" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">💳 {% translate "Войдите, чтобы купить" %}</a>
+      {% endif %}
+      <a class="btn btn-lg btn-ghost" href="{% url 'core:contact' %}?product={{ product.pk }}">{% translate "Задать вопрос" %}</a>
+    </div>
+  </div>
+</article>
+
+<section class="card prose">
+  <h2>{% translate "Описание" %}</h2>
+  {{ product.description|linebreaks }}
+</section>
+
+{% if related %}
+<section>
+  <div class="section-head"><h2>{% translate "Похожие" %}</h2></div>
+  <div class="grid">{% for p in related %}{% include "catalog/_card.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}

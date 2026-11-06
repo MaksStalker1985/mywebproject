@@ -1,0 +1,38 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Группы и доступ" %}{% endblock %}
+
+{% block dash %}
+<div class="section-head">
+  <h1>{% translate "Группы и доступ" %}</h1>
+  <a class="btn" href="{% url 'dashboard:role_create' %}">+ {% translate "Новая группа" %}</a>
+</div>
+<p class="muted small">{% translate "Каждый пользователь состоит в одной группе. Права группы определяют доступ к панели управления, модерации, платным продуктам, тестовым сборкам и разделам форума." %}</p>
+
+<div class="role-grid">
+  {% for r in object_list %}
+    <a class="card role-card" href="{% url 'dashboard:role_edit' r.pk %}">
+      <div class="section-head">
+        <h3><span class="role-badge role-{{ r.color }}">{{ r.display_title }}</span></h3>
+        <span class="muted small">👥 {{ r.members }}</span>
+      </div>
+      {% if r.description %}<p class="muted small">{{ r.description }}</p>{% endif %}
+      <ul class="perm-list">
+        <li class="{% if r.can_access_dashboard %}on{% endif %}">{% translate "Панель управления" %}</li>
+        <li class="{% if r.can_moderate_forum %}on{% endif %}">{% translate "Модерация форума" %}</li>
+        <li class="{% if r.free_access_paid %}on{% endif %}">{% translate "Платные продукты бесплатно" %}</li>
+        <li class="{% if r.can_see_test_builds %}on{% endif %}">{% translate "Тестовые сборки" %}</li>
+      </ul>
+      <p class="small">
+        💬 {% if r.restricted %}{% blocktranslate with n=r.restricted total=category_count %}Ограничен доступ к разделам форума: {{ n }} из {{ total }}{% endblocktranslate %}
+        {% else %}<span class="muted">{% translate "Полный доступ ко всем разделам форума" %}</span>{% endif %}
+      </p>
+      <p class="small">
+        {% if r.is_default %}<span class="tag">{% translate "Группа по умолчанию" %}</span>{% endif %}
+        {% if r.is_system %}<span class="tag">{% translate "Системная" %}</span>{% endif %}
+        <span class="muted">{% translate "Ключ" %}: {{ r.key }}</span>
+      </p>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% if heading %}{{ heading }}{% else %}{{ object.display_title }}{% endif %}{% endblock %}
+
+{% block dash %}
+<nav class="crumbs"><a href="{% url 'dashboard:roles' %}">← {% translate "Назад к списку" %}</a></nav>
+<h1>{% if heading %}{{ heading }}{% else %}{% translate "Группа" %}: {{ object.display_title }}{% endif %}</h1>
+
+<form method="post" class="form">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+  <section class="card form-grid">
+    <h2 class="full">{% translate "Основное" %}</h2>
+    {% for field in form.main_fields %}{% include "dashboard/_field.html" %}{% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>{% translate "Права" %}</h2>
+    {% for field in form.permission_fields %}
+      <label class="perm-row{% if field.field.disabled %} disabled{% endif %}">
+        {{ field }}
+        <span><strong>{{ field.label|capfirst }}</strong><small class="help">{{ field.help_text }}</small>
+          {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}</span>
+      </label>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>{% translate "Доступ к разделам форума" %}</h2>
+    <p class="muted small">{% translate "«Нет доступа» скрывает раздел и его темы; «Только чтение» запрещает создавать темы и отвечать." %}</p>
+    <div class="table access-table">
+      <div class="row head"><span>{% translate "Раздел" %}</span><span>{% translate "Доступ" %}</span></div>
+      {% for cat, field in form.forum_fields %}
+        <div class="row">
+          <label for="{{ field.id_for_label }}"><span class="row-title">{{ cat.title }}</span><small class="muted">{{ cat.description }}</small></label>
+          <span>{{ field }}</span>
+        </div>
+      {% empty %}
+        <p class="muted">{% translate "Разделы ещё не созданы." %}</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="form-actions">
+    <button class="btn">{% translate "Сохранить" %}</button>
+    <a class="btn btn-ghost" href="{% url 'dashboard:roles' %}">{% translate "Отмена" %}</a>
+    {% if object.pk and object.can_delete %}
+      <a class="btn btn-danger push-right" href="{% url 'dashboard:role_delete' object.pk %}">{% translate "Удалить" %}</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

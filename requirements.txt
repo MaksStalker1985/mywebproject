@@ -1,0 +1,4 @@
+Django>=5.2,<6
+Pillow>=11
+polib>=1.2
+stripe>=16,<17

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Заказ" %} #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+  <h1>{% translate "Заказ" %} #{{ order.pk }}</h1>
+  {% if order.status == "paid" %}
+    <p class="msg msg-success">{% translate "Оплата прошла успешно. Спасибо за покупку!" %}</p>
+  {% elif order.status == "pending" %}
+    <p class="msg msg-info">{% translate "Ожидаем подтверждение оплаты от платёжной системы. Обновите страницу через минуту." %}</p>
+  {% else %}
+    <p class="msg msg-error">{% translate "Оплата не завершена." %} {{ order.get_status_display }}.</p>
+  {% endif %}
+  <div class="card">
+    <dl class="specs">
+      <dt>{% translate "Продукт" %}</dt><dd><a href="{{ order.product.get_absolute_url }}">{{ order.product.title }}</a></dd>
+      <dt>{% translate "Сумма" %}</dt><dd>{{ order.amount|floatformat:"-2" }} {{ order.currency }}</dd>
+      <dt>{% translate "Статус" %}</dt><dd>{{ order.get_status_display }}</dd>
+      <dt>{% translate "Дата" %}</dt><dd>{{ order.created_at|date:"DATETIME_FORMAT" }}</dd>
+    </dl>
+    <div class="hero-actions">
+      {% if order.status == "paid" and order.product.file %}
+        <a class="btn" href="{% url 'catalog:download' order.product.slug %}">⬇ {% translate "Скачать" %}</a>
+      {% elif order.status != "pending" %}
+        <a class="btn" href="{{ order.product.get_absolute_url }}">{% translate "Попробовать снова" %}</a>
+      {% endif %}
+      <a class="btn btn-ghost" href="{% url 'accounts:orders' %}">{% translate "Мои покупки" %}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

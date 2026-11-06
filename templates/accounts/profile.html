@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n avatars %}
+{% block title %}{% translate "Профиль" %}{% endblock %}
+
+{% block content %}
+{% include "accounts/_cabinet_head.html" %}
+<div class="two-col">
+  <div class="card">
+    <h2>{% translate "Аватар" %}</h2>
+    <div class="avatar-editor">
+      {% avatar user 96 %}
+      <div>
+        <form method="post" action="{% url 'accounts:avatar_update' %}" enctype="multipart/form-data" class="form">
+          {% csrf_token %}
+          {{ avatar_form.avatar }}
+          <button class="btn btn-sm">{% translate "Загрузить" %}</button>
+        </form>
+        <small class="muted">{{ avatar_form.avatar.help_text }}</small>
+        {% for error in avatar_form.avatar.errors %}<small class="error" style="display:block;color:var(--err)">{{ error }}</small>{% endfor %}
+        {% if user.profile.avatar %}
+        <form method="post" action="{% url 'accounts:avatar_remove' %}" style="margin-top:8px">
+          {% csrf_token %}<button class="link-btn">{% translate "Удалить аватар" %}</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    <dl class="specs">
+      <dt>{% translate "Логин" %}</dt><dd>{{ user.username }}</dd>
+      <dt>E-mail</dt><dd>{{ user.email|default:"—" }}</dd>
+      <dt>{% translate "Группа" %}</dt><dd><span class="role-badge role-{{ user_role.color }}">{{ user_role_label }}</span></dd>
+      <dt>{% translate "С нами с" %}</dt><dd>{{ user.date_joined|date:"DATE_FORMAT" }}</dd>
+      <dt>{% translate "Сообщений на форуме" %}</dt><dd>{{ post_count }}</dd>
+    </dl>
+    <a class="btn btn-ghost" href="{% url 'accounts:password_change' %}">{% translate "Сменить пароль" %}</a>
+    {% if is_site_admin %}<a class="btn btn-ghost" href="{% url 'dashboard:index' %}">{% translate "Панель управления" %}</a>{% endif %}
+  </div>
+  <div>
+    <h2>{% translate "Мои темы" %}</h2>
+    <ul class="list">
+      {% for t in topics %}
+        <li><a href="{{ t.get_absolute_url }}">{{ t.title }}</a> <span class="muted">· {{ t.category }}</span></li>
+      {% empty %}
+        <li class="muted">{% translate "Вы ещё не создавали тем." %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Моя библиотека" %}{% endblock %}
+
+{% block content %}
+{% include "accounts/_cabinet_head.html" %}
+
+<section>
+  <h2>{% translate "Купленные игры и программы" %}</h2>
+  <div class="library">
+    {% for p in library %}{% include "accounts/_library_item.html" %}
+    {% empty %}
+      <p class="muted">{% translate "Покупок пока нет." %} <a href="{% url 'catalog:list' %}">{% translate "Перейти в каталог" %}</a></p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if role_products %}
+<section>
+  <h2>{% blocktranslate with role=user_role_label %}Доступно по роли «{{ role }}»{% endblocktranslate %}</h2>
+  <p class="muted">{% translate "Ваша группа скачивает эти продукты без покупки." %}{% if user_role.description %} {{ user_role.description }}.{% endif %}</p>
+  <div class="library">
+    {% for p in role_products %}{% include "accounts/_library_item.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

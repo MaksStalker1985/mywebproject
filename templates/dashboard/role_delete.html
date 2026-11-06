@@ -1,0 +1,15 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Удаление группы" %}{% endblock %}
+
+{% block dash %}
+<h1>{% translate "Удалить группу" %} «{{ role.display_title }}»?</h1>
+<div class="card">
+  <p>{% blocktranslate with n=members default=default_role.display_title %}Участников в группе: {{ n }}. Они будут перенесены в группу «{{ default }}». Настройки доступа к форуму для этой группы удалятся.{% endblocktranslate %}</p>
+  <form method="post" class="form-actions">
+    {% csrf_token %}
+    <button class="btn btn-danger">{% translate "Удалить" %}</button>
+    <a class="btn btn-ghost" href="{% url 'dashboard:role_edit' role.pk %}">{% translate "Отмена" %}</a>
+  </form>
+</div>
+{% endblock %}

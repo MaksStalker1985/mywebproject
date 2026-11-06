@@ -1,0 +1,17 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Удаление" %}{% endblock %}
+
+{% block dash %}
+<div class="auth-box">
+  <h1>{% translate "Удаление" %}</h1>
+  <form method="post" class="card">
+    {% csrf_token %}
+    <p>{% blocktranslate with obj=object %}Удалить «{{ obj }}»? Это действие нельзя отменить.{% endblocktranslate %}</p>
+    <div class="hero-actions">
+      <button class="btn btn-danger">{% translate "Да, удалить" %}</button>
+      <a class="btn btn-ghost" href="{{ request.META.HTTP_REFERER|default:'..' }}">{% translate "Отмена" %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

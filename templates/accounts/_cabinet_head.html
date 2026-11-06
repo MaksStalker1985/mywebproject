@@ -1,0 +1,18 @@
+{% load i18n avatars %}
+<div class="section-head cabinet-head">
+  <a href="{% url 'accounts:profile' %}" title="{% translate 'Сменить аватар' %}">{% avatar user 64 %}</a>
+  <div>
+    <h1>{% translate "Личный кабинет" %}</h1>
+    <p class="muted">{{ user.username }} · <span class="role-badge role-{{ user_role.color }}">{{ user_role_label }}</span></p>
+  </div>
+</div>
+<div class="kpis">
+  <div class="stat"><strong>{{ stats.purchased }}</strong><span>{% translate "куплено продуктов" %}</span></div>
+  <div class="stat"><strong>{% for s in stats.spent %}{{ s.total|floatformat:"-2" }} {{ s.currency }}{% if not forloop.last %}<br>{% endif %}{% empty %}0{% endfor %}</strong><span>{% translate "потрачено" %}</span></div>
+  <div class="stat"><strong>{{ stats.pending }}</strong><span>{% translate "ожидают оплаты" %}</span></div>
+</div>
+<nav class="tabs">
+  <a href="{% url 'accounts:cabinet' %}" {% if tab == "library" %}class="active"{% endif %}>🎮 {% translate "Моя библиотека" %}</a>
+  <a href="{% url 'accounts:orders' %}" {% if tab == "orders" %}class="active"{% endif %}>🧾 {% translate "История покупок" %}</a>
+  <a href="{% url 'accounts:profile' %}" {% if tab == "profile" %}class="active"{% endif %}>⚙ {% translate "Профиль" %}</a>
+</nav>

@@ -1,0 +1,45 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Игры и ПО" %}{% endblock %}
+
+{% block dash %}
+<div class="section-head">
+  <h1>{% translate "Игры и ПО" %}</h1>
+  <a class="btn" href="{% url 'dashboard:product_create' %}">+ {% translate "Добавить" %}</a>
+</div>
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ request.GET.q }}" placeholder="{% translate 'Поиск по названию или разработчику' %}">
+  <select name="kind">
+    <option value="">{% translate "Все" %}</option>
+    <option value="game" {% if request.GET.kind == "game" %}selected{% endif %}>{% translate "Игры" %}</option>
+    <option value="software" {% if request.GET.kind == "software" %}selected{% endif %}>{% translate "Программы" %}</option>
+  </select>
+  <button class="btn">{% translate "Найти" %}</button>
+</form>
+
+<div class="table dash-table">
+  <div class="row head">
+    <span>{% translate "Название" %}</span><span>{% translate "Цена" %}</span><span>{% translate "Продаж" %}</span><span>⬇</span><span>{% translate "Статус" %}</span><span></span>
+  </div>
+  {% for p in page_obj %}
+    <div class="row">
+      <span><a class="row-title" href="{% url 'dashboard:product_edit' p.pk %}">{{ p.title }}</a><small class="muted">{{ p.get_kind_display }} · v{{ p.version }} · {{ p.get_platform_display }}</small></span>
+      <span>{% if p.is_free %}{% translate "Бесплатно" %}{% else %}{{ p.price|floatformat:"-2" }} {{ p.currency }}{% endif %}</span>
+      <span>{{ p.sales }}</span>
+      <span>{{ p.download_count }}</span>
+      <span>
+        {% if p.is_published %}<span class="status-paid">{% translate "Опубликован" %}</span>{% else %}<span class="muted">{% translate "Скрыт" %}</span>{% endif %}
+        {% if p.is_featured %}<span class="tag">★</span>{% endif %}
+        {% if not p.file %}<span class="tag" title="{% translate 'Файл не загружен' %}">⚠ {% translate "нет файла" %}</span>{% endif %}
+      </span>
+      <span class="row-actions">
+        <a href="{{ p.get_absolute_url }}" title="{% translate 'Открыть на сайте' %}">↗</a>
+        <a href="{% url 'dashboard:product_edit' p.pk %}">{% translate "Изменить" %}</a>
+      </span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Ничего не найдено." %}</p>
+  {% endfor %}
+</div>
+{% with page=page_obj %}{% include "_pagination.html" %}{% endwith %}
+{% endblock %}

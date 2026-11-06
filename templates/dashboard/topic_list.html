@@ -1,0 +1,29 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Темы форума" %}{% endblock %}
+
+{% block dash %}
+<h1>{% translate "Темы форума" %}</h1>
+<div class="table dash-table cols-5">
+  <div class="row head"><span>{% translate "Тема" %}</span><span>{% translate "Автор" %}</span><span>{% translate "Сообщения" %}</span><span>{% translate "Активность" %}</span><span></span></div>
+  {% for t in page_obj %}
+    <div class="row">
+      <span>
+        {% if t.is_pinned %}<span class="tag">📌</span>{% endif %}{% if t.is_locked %}<span class="tag">🔒</span>{% endif %}
+        <a class="row-title" href="{{ t.get_absolute_url }}">{{ t.title }}</a><small class="muted">{{ t.category }}</small>
+      </span>
+      <span>{{ t.author }}</span>
+      <span>{{ t.post_count }}</span>
+      <span class="muted">{{ t.last_activity|timesince }}</span>
+      <span class="row-actions">
+        <form method="post" action="{% url 'dashboard:topic_toggle' t.pk 'is_pinned' %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn neutral">{% if t.is_pinned %}{% translate "Открепить" %}{% else %}{% translate "Закрепить" %}{% endif %}</button></form>
+        <form method="post" action="{% url 'dashboard:topic_toggle' t.pk 'is_locked' %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn neutral">{% if t.is_locked %}{% translate "Открыть" %}{% else %}{% translate "Закрыть" %}{% endif %}</button></form>
+        <a class="danger" href="{% url 'dashboard:topic_delete' t.pk %}">{% translate "Удалить" %}</a>
+      </span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Тем пока нет." %}</p>
+  {% endfor %}
+</div>
+{% with page=page_obj %}{% include "_pagination.html" %}{% endwith %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% if heading %}{{ heading }}{% else %}{{ object }}{% endif %}{% endblock %}
+
+{% block dash %}
+<nav class="crumbs"><a href="{{ back_url }}">← {% translate "Назад к списку" %}</a></nav>
+<div class="section-head">
+  <h1>{% if heading %}{{ heading }}{% else %}{% translate "Редактирование" %}: {{ object }}{% endif %}</h1>
+  {% if object.get_absolute_url %}<a class="btn btn-ghost" href="{{ object.get_absolute_url }}">↗ {% translate "Открыть на сайте" %}</a>{% endif %}
+</div>
+<form method="post" enctype="multipart/form-data" class="card form form-grid">
+  {% csrf_token %}
+  {% include "_form_fields.html" %}
+  <div class="form-actions">
+    <button class="btn">{% translate "Сохранить" %}</button>
+    <a class="btn btn-ghost" href="{{ back_url }}">{% translate "Отмена" %}</a>
+    {% if object.pk and delete_url_name %}
+      <a class="btn btn-danger push-right" href="{% url delete_url_name object.pk %}">{% translate "Удалить" %}</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

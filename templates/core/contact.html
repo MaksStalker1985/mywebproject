@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Связь с производителем" %}{% endblock %}
+
+{% block content %}
+<h1>{% translate "Связь с производителем" %}</h1>
+<div class="two-col contact">
+  <form method="post" class="card form">
+    {% csrf_token %}
+    {% include "_form_fields.html" %}
+    <button class="btn">{% translate "Отправить" %}</button>
+  </form>
+  <aside class="card info">
+    <h3>{% translate "Контакты" %}</h3>
+    <p>{% translate "E-mail поддержки" %}: <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+    <p>{% translate "Мы отвечаем в течение 1–2 рабочих дней." %}</p>
+    <h3>{% translate "Перед обращением" %}</h3>
+    <ul>
+      <li>{% translate "Укажите продукт и его версию." %}</li>
+      <li>{% translate "Опишите шаги, которые привели к ошибке." %}</li>
+      {% url 'forum:index' as forum_url %}
+      <li>{% blocktranslate %}Поищите ответ на <a href="{{ forum_url }}">форуме</a> — возможно, вопрос уже решён.{% endblocktranslate %}</li>
+    </ul>
+  </aside>
+</div>
+{% endblock %}

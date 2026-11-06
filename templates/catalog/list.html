@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if kind == kinds.GAME %}{% translate "Игры" %}{% elif kind == kinds.SOFTWARE %}{% translate "Программы" %}{% else %}{% translate "Игры / ПО" %}{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if kind == kinds.GAME %}{% translate "Игры" %}{% elif kind == kinds.SOFTWARE %}{% translate "Программы" %}{% else %}{% translate "Игры и программы" %}{% endif %}</h1>
+
+<div class="tabs">
+  <a href="{% url 'catalog:list' %}" {% if not kind %}class="active"{% endif %}>{% translate "Все" %}</a>
+  <a href="{% url 'catalog:games' %}" {% if kind == kinds.GAME %}class="active"{% endif %}>{% translate "Игры" %}</a>
+  <a href="{% url 'catalog:software' %}" {% if kind == kinds.SOFTWARE %}class="active"{% endif %}>{% translate "Программы" %}</a>
+</div>
+
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ query }}" placeholder="{% translate 'Поиск по названию или жанру' %}">
+  <select name="platform">
+    <option value="">{% translate "Все платформы" %}</option>
+    {% for value, label in platforms %}<option value="{{ value }}" {% if value == platform %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    <option value="new" {% if sort == "new" %}selected{% endif %}>{% translate "Сначала новые" %}</option>
+    <option value="popular" {% if sort == "popular" %}selected{% endif %}>{% translate "Популярные" %}</option>
+  </select>
+  <button class="btn">{% translate "Найти" %}</button>
+</form>
+
+<div class="grid">
+  {% for p in page %}{% include "catalog/_card.html" %}{% empty %}<p class="muted">{% translate "Ничего не найдено." %}</p>{% endfor %}
+</div>
+
+{% include "_pagination.html" %}
+{% endblock %}

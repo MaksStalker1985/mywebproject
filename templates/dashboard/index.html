@@ -1,0 +1,47 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Панель управления" %}{% endblock %}
+
+{% block dash %}
+<div class="section-head">
+  <h1>{% translate "Обзор" %}</h1>
+  <a class="btn" href="{% url 'dashboard:product_create' %}">+ {% translate "Добавить игру / ПО" %}</a>
+</div>
+
+<div class="kpis">
+  <div class="stat"><strong>{{ stats.games }}</strong><span>{% translate "игр" %}</span></div>
+  <div class="stat"><strong>{{ stats.software }}</strong><span>{% translate "программ" %}</span></div>
+  <div class="stat"><strong>{{ stats.downloads }}</strong><span>{% translate "скачиваний" %}</span></div>
+  <div class="stat"><strong>{{ stats.sales }}</strong><span>{% translate "продаж" %}</span></div>
+  <div class="stat"><strong>{{ stats.revenue|floatformat:"-2" }}</strong><span>{% translate "выручка" %}, {{ stats.currency }}</span></div>
+  <div class="stat"><strong>{{ stats.users }}</strong><span>{% translate "пользователей" %}</span></div>
+</div>
+
+<div class="two-col">
+  <section class="card">
+    <h2>{% translate "Популярные продукты" %}</h2>
+    <ul class="list">
+      {% for p in top_products %}
+        <li><a href="{% url 'dashboard:product_edit' p.pk %}">{{ p.title }}</a> <span class="muted">· {% translate "продаж" %}: {{ p.sales }} · ⬇ {{ p.download_count }}</span></li>
+      {% empty %}<li class="muted">—</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <div class="section-head"><h2>{% translate "Новые обращения" %}</h2>{% if stats.new_messages %}<span class="tag">{{ stats.new_messages }}</span>{% endif %}</div>
+    <ul class="list">
+      {% for m in recent_messages %}
+        <li><a href="{% url 'dashboard:messages' %}#msg-{{ m.pk }}">{{ m.get_topic_display }}</a> <span class="muted">· {{ m.name }} · {{ m.created_at|timesince }}</span></li>
+      {% empty %}<li class="muted">{% translate "Необработанных обращений нет." %}</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card">
+  <div class="section-head"><h2>{% translate "Последние заказы" %}</h2><a href="{% url 'dashboard:orders' %}">{% translate "Все заказы" %} →</a></div>
+  <ul class="list">
+    {% for o in recent_orders %}
+      <li>#{{ o.pk }} · {{ o.product.title }} · {{ o.user.username }} · {{ o.amount|floatformat:"-2" }} {{ o.currency }} · <span class="status-{{ o.status }}">{{ o.get_status_display }}</span></li>
+    {% empty %}<li class="muted">{% translate "Заказов пока нет." %}</li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

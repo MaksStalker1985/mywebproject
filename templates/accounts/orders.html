@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "История покупок" %}{% endblock %}
+
+{% block content %}
+{% include "accounts/_cabinet_head.html" %}
+
+<div class="tabs tabs-sm">
+  <a href="?" {% if not status %}class="active"{% endif %}>{% translate "Все" %}</a>
+  {% for value, label in statuses %}<a href="?status={{ value }}" {% if status == value %}class="active"{% endif %}>{{ label }}</a>{% endfor %}
+</div>
+<div class="table orders-table">
+  <div class="row head">
+    <span>{% translate "Заказ" %}</span><span>{% translate "Сумма" %}</span><span>{% translate "Статус" %}</span><span>{% translate "Оплата" %}</span><span>{% translate "Дата" %}</span><span></span>
+  </div>
+  {% for o in page %}
+    <div class="row">
+      <span><a class="row-title" href="{{ o.get_absolute_url }}">#{{ o.pk }} · {{ o.product.title }}</a><small class="muted">{{ o.product.get_kind_display }} · v{{ o.product.version }}</small></span>
+      <span>{{ o.amount|floatformat:"-2" }} {{ o.currency }}</span>
+      <span class="status-{{ o.status }}">{{ o.get_status_display }}</span>
+      <span class="muted">{{ o.provider|capfirst }}</span>
+      <span class="muted">{{ o.created_at|date:"SHORT_DATETIME_FORMAT" }}{% if o.paid_at %}<small>{% translate "оплачен" %} {{ o.paid_at|date:"SHORT_DATETIME_FORMAT" }}</small>{% endif %}</span>
+      <span>
+        {% if o.status == "paid" and o.product.file %}<a class="btn btn-sm" href="{% url 'catalog:download' o.product.slug %}">⬇ {% translate "Скачать" %}</a>
+        {% elif o.status == "pending" %}<a class="btn btn-ghost btn-sm" href="{{ o.get_absolute_url }}">{% translate "Проверить" %}</a>
+        {% elif o.product.is_published %}<a class="btn btn-ghost btn-sm" href="{{ o.product.get_absolute_url }}">{% translate "Купить снова" %}</a>{% endif %}
+      </span>
+    </div>
+  {% empty %}
+    <p class="muted">{% if status %}{% translate "Заказов с таким статусом нет." %}{% else %}{% translate "Покупок пока нет." %} <a href="{% url 'catalog:list' %}">{% translate "Перейти в каталог" %}</a>{% endif %}</p>
+  {% endfor %}
+</div>
+{% include "_pagination.html" %}
+{% endblock %}

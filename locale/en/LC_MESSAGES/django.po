@@ -1,0 +1,1297 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GameHub\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Меню"
+msgstr "Menu"
+
+msgid "Главная"
+msgstr "Home"
+
+msgid "Игры / ПО"
+msgstr "Games / Software"
+
+msgid "Форум"
+msgstr "Forum"
+
+msgid "Связь с производителем"
+msgstr "Contact the developer"
+
+msgid "Выйти"
+msgstr "Log out"
+
+msgid "Войти"
+msgstr "Log in"
+
+msgid "Регистрация"
+msgstr "Sign up"
+
+msgid "Игры и программы от производителя."
+msgstr "Games and software from the developer."
+
+msgid "Игры"
+msgstr "Games"
+
+msgid "Программы"
+msgstr "Software"
+
+msgid "Поддержка"
+msgstr "Support"
+
+msgid "Назад"
+msgstr "Back"
+
+msgid "Вперёд"
+msgstr "Next"
+
+#, python-format
+msgid "Страница %(n)s из %(total)s"
+msgstr "Page %(n)s of %(total)s"
+
+msgid "Вход"
+msgstr "Log in"
+
+msgid ""
+"Форум доступен только зарегистрированным пользователям. Войдите, чтобы "
+"продолжить."
+msgstr ""
+"The forum is available to registered users only. Please log in to continue."
+
+msgid "Нет учётной записи?"
+msgstr "No account yet?"
+
+msgid "Зарегистрируйтесь"
+msgstr "Sign up"
+
+msgid "Смена пароля"
+msgstr "Change password"
+
+msgid "Сохранить"
+msgstr "Save"
+
+msgid "Профиль"
+msgstr "Profile"
+
+msgid "Логин"
+msgstr "Username"
+
+msgid "С нами с"
+msgstr "Member since"
+
+msgid "Сообщений на форуме"
+msgstr "Forum posts"
+
+msgid "Сменить пароль"
+msgstr "Change password"
+
+msgid "Админ-панель"
+msgstr "Admin panel"
+
+msgid "Мои темы"
+msgstr "My topics"
+
+msgid "Вы ещё не создавали тем."
+msgstr "You haven't created any topics yet."
+
+msgid "Создать учётную запись"
+msgstr "Create account"
+
+msgid "Уже зарегистрированы?"
+msgstr "Already registered?"
+
+msgid "Каталог"
+msgstr "Catalog"
+
+msgid "Тип"
+msgstr "Type"
+
+msgid "Разработчик"
+msgstr "Developer"
+
+msgid "Версия"
+msgstr "Version"
+
+msgid "Платформа"
+msgstr "Platform"
+
+msgid "Размер"
+msgstr "Size"
+
+msgid "Обновлено"
+msgstr "Updated"
+
+msgid "Скачиваний"
+msgstr "Downloads"
+
+msgid "Скачать"
+msgstr "Download"
+
+msgid "Скоро будет доступно"
+msgstr "Coming soon"
+
+msgid "Задать вопрос"
+msgstr "Ask a question"
+
+msgid "Описание"
+msgstr "Description"
+
+msgid "Похожие"
+msgstr "Similar"
+
+msgid "Игры и программы"
+msgstr "Games and software"
+
+msgid "Все"
+msgstr "All"
+
+msgid "Поиск по названию или жанру"
+msgstr "Search by title or genre"
+
+msgid "Все платформы"
+msgstr "All platforms"
+
+msgid "Сначала новые"
+msgstr "Newest first"
+
+msgid "Популярные"
+msgstr "Most popular"
+
+msgid "Найти"
+msgstr "Search"
+
+msgid "Ничего не найдено."
+msgstr "Nothing found."
+
+msgid "Отправить"
+msgstr "Send"
+
+msgid "Контакты"
+msgstr "Contacts"
+
+msgid "E-mail поддержки"
+msgstr "Support e-mail"
+
+msgid "Мы отвечаем в течение 1–2 рабочих дней."
+msgstr "We reply within 1–2 business days."
+
+msgid "Перед обращением"
+msgstr "Before contacting us"
+
+msgid "Укажите продукт и его версию."
+msgstr "Specify the product and its version."
+
+msgid "Опишите шаги, которые привели к ошибке."
+msgstr "Describe the steps that led to the error."
+
+#, python-format
+msgid ""
+"Поищите ответ на <a href=\"%(forum_url)s\">форуме</a> — возможно, вопрос уже"
+" решён."
+msgstr ""
+"Search the <a href=\"%(forum_url)s\">forum</a> — your question may already "
+"be answered."
+
+msgid "Игры и программы — напрямую от производителя"
+msgstr "Games and software — straight from the developer"
+
+msgid "Каталог игр"
+msgstr "Browse games"
+
+msgid "игр"
+msgstr "games"
+
+msgid "программ"
+msgstr "apps"
+
+msgid "языка интерфейса"
+msgstr "interface languages"
+
+msgid "Рекомендуем"
+msgstr "Featured"
+
+msgid "Весь каталог"
+msgstr "Full catalog"
+
+msgid "Новинки"
+msgstr "New releases"
+
+msgid "Каталог пока пуст."
+msgstr "The catalog is empty for now."
+
+msgid "На форуме"
+msgstr "On the forum"
+
+msgid "Перейти"
+msgstr "Open"
+
+msgid "Тем пока нет."
+msgstr "No topics yet."
+
+msgid "Для чтения и участия в форуме нужна учётная запись."
+msgstr "You need an account to read and post on the forum."
+
+msgid ""
+"Скачивайте официальные сборки, следите за обновлениями и общайтесь с "
+"командой разработчиков и другими игроками на форуме."
+msgstr ""
+"Download official builds, follow updates and talk to the development team "
+"and other players on the forum."
+
+msgid "Новая тема"
+msgstr "New topic"
+
+msgid "Тема"
+msgstr "Topic"
+
+msgid "Автор"
+msgstr "Author"
+
+msgid "Ответы"
+msgstr "Replies"
+
+msgid "Активность"
+msgstr "Activity"
+
+msgid "Закреплено"
+msgstr "Pinned"
+
+msgid "В этом разделе пока нет тем. Станьте первым!"
+msgstr "No topics in this section yet. Be the first!"
+
+msgid "Раздел"
+msgstr "Section"
+
+msgid "Темы"
+msgstr "Topics"
+
+msgid "Сообщения"
+msgstr "Posts"
+
+msgid "Разделы ещё не созданы."
+msgstr "No sections have been created yet."
+
+msgid "Удалить сообщение?"
+msgstr "Delete this post?"
+
+msgid "Команда"
+msgstr "Team"
+
+msgid "Удалить"
+msgstr "Delete"
+
+msgid "Тема закрыта для новых ответов."
+msgstr "This topic is closed for new replies."
+
+msgid "Ответить"
+msgstr "Reply"
+
+msgid "Создать тему"
+msgstr "Create topic"
+
+msgid "E-mail"
+msgstr "E-mail"
+
+msgid "Пользователь с таким e-mail уже зарегистрирован."
+msgstr "A user with this e-mail is already registered."
+
+#, python-format
+msgid "Добро пожаловать, %(name)s! Регистрация прошла успешно."
+msgstr "Welcome, %(name)s! Your account has been created."
+
+msgid "Игра"
+msgstr "Game"
+
+msgid "Программа"
+msgstr "Software"
+
+msgid "Кроссплатформенная"
+msgstr "Cross-platform"
+
+msgid "тип"
+msgstr "type"
+
+msgid "название"
+msgstr "title"
+
+msgid "адрес"
+msgstr "slug"
+
+msgid "жанр / категория"
+msgstr "genre / category"
+
+msgid "кратко"
+msgstr "summary"
+
+msgid "описание"
+msgstr "description"
+
+msgid "разработчик"
+msgstr "developer"
+
+msgid "версия"
+msgstr "version"
+
+msgid "платформа"
+msgstr "platform"
+
+msgid "обложка"
+msgstr "cover"
+
+msgid "файл"
+msgstr "file"
+
+msgid "скачиваний"
+msgstr "downloads"
+
+msgid "на главной"
+msgstr "featured"
+
+msgid "опубликовано"
+msgstr "published"
+
+msgid "добавлено"
+msgstr "added"
+
+msgid "обновлено"
+msgstr "updated"
+
+msgid "продукт"
+msgstr "product"
+
+msgid "продукты"
+msgstr "products"
+
+msgid "Русский"
+msgstr "Russian"
+
+msgid "English"
+msgstr "English"
+
+msgid "Українська"
+msgstr "Ukrainian"
+
+msgid "Общий вопрос"
+msgstr "General question"
+
+msgid "Техническая поддержка"
+msgstr "Technical support"
+
+msgid "Сообщение об ошибке"
+msgstr "Bug report"
+
+msgid "Сотрудничество"
+msgstr "Partnership"
+
+msgid "имя"
+msgstr "name"
+
+msgid "e-mail"
+msgstr "e-mail"
+
+msgid "тема"
+msgstr "subject"
+
+msgid "сообщение"
+msgstr "message"
+
+msgid "создано"
+msgstr "created"
+
+msgid "обработано"
+msgstr "processed"
+
+msgid "обращение"
+msgstr "enquiry"
+
+msgid "обращения"
+msgstr "enquiries"
+
+msgid "Спасибо! Ваше сообщение отправлено, мы ответим в ближайшее время."
+msgstr "Thank you! Your message has been sent, we will reply soon."
+
+msgid "Ваш ответ"
+msgstr "Your reply"
+
+msgid "Заголовок"
+msgstr "Title"
+
+msgid "Сообщение"
+msgstr "Message"
+
+msgid "порядок"
+msgstr "order"
+
+msgid "раздел"
+msgstr "section"
+
+msgid "разделы"
+msgstr "sections"
+
+msgid "заголовок"
+msgstr "title"
+
+msgid "автор"
+msgstr "author"
+
+msgid "закреплена"
+msgstr "pinned"
+
+msgid "закрыта"
+msgstr "locked"
+
+msgid "создана"
+msgstr "created"
+
+msgid "последняя активность"
+msgstr "last activity"
+
+msgid "темы"
+msgstr "topics"
+
+msgid "текст"
+msgstr "text"
+
+msgid "изменено"
+msgstr "edited"
+
+msgid "сообщения"
+msgstr "posts"
+
+msgid "Тема создана."
+msgstr "Topic created."
+
+msgid "Тема удалена."
+msgstr "Topic deleted."
+
+msgid "Сообщение удалено."
+msgstr "Post deleted."
+
+msgid "цена"
+msgstr "price"
+
+msgid "0 — бесплатно. Валюта задаётся в настройках (PAYMENTS_CURRENCY)."
+msgstr "0 means free. The currency is set in settings (PAYMENTS_CURRENCY)."
+
+msgid "Ожидает оплаты"
+msgstr "Awaiting payment"
+
+msgid "Оплачен"
+msgstr "Paid"
+
+msgid "Отменён"
+msgstr "Cancelled"
+
+msgid "Ошибка оплаты"
+msgstr "Payment failed"
+
+msgid "Возврат"
+msgstr "Refunded"
+
+msgid "покупатель"
+msgstr "customer"
+
+msgid "сумма"
+msgstr "amount"
+
+msgid "валюта"
+msgstr "currency"
+
+msgid "статус"
+msgstr "status"
+
+msgid "платёжная система"
+msgstr "payment provider"
+
+msgid "ID платежа"
+msgstr "payment ID"
+
+msgid "создан"
+msgstr "created"
+
+msgid "оплачен"
+msgstr "paid"
+
+msgid "заказ"
+msgstr "order"
+
+msgid "заказы"
+msgstr "orders"
+
+msgid "Не удалось перейти к оплате. Попробуйте позже или свяжитесь с нами."
+msgstr "Could not start the payment. Please try again later or contact us."
+
+msgid "Этот продукт платный. Купите его, чтобы скачать."
+msgstr "This is a paid product. Buy it to download."
+
+msgid "Бесплатно"
+msgstr "Free"
+
+msgid "Куплено"
+msgstr "Purchased"
+
+#, python-format
+msgid "Купить за %(price)s %(currency)s"
+msgstr "Buy for %(price)s %(currency)s"
+
+msgid "Войдите, чтобы купить"
+msgstr "Log in to buy"
+
+msgid "Оплата"
+msgstr "Payment"
+
+msgid "Оплата заказа"
+msgstr "Payment for order"
+
+msgid ""
+"Демо-режим: реальные деньги не списываются. Для приёма карт настройте Stripe"
+" (PAYMENTS_PROVIDER=stripe)."
+msgstr ""
+"Demo mode: no real money is charged. Configure Stripe "
+"(PAYMENTS_PROVIDER=stripe) to accept cards."
+
+msgid "Продукт"
+msgstr "Product"
+
+msgid "К оплате"
+msgstr "Amount due"
+
+msgid "Оплатить (тест)"
+msgstr "Pay (test)"
+
+msgid "Отменить"
+msgstr "Cancel"
+
+msgid "Заказ"
+msgstr "Order"
+
+msgid "Оплата прошла успешно. Спасибо за покупку!"
+msgstr "Payment successful. Thank you for your purchase!"
+
+msgid ""
+"Ожидаем подтверждение оплаты от платёжной системы. Обновите страницу через "
+"минуту."
+msgstr ""
+"Waiting for payment confirmation from the provider. Refresh the page in a "
+"minute."
+
+msgid "Оплата не завершена."
+msgstr "Payment not completed."
+
+msgid "Сумма"
+msgstr "Amount"
+
+msgid "Статус"
+msgstr "Status"
+
+msgid "Дата"
+msgstr "Date"
+
+msgid "Попробовать снова"
+msgstr "Try again"
+
+msgid "Мои покупки"
+msgstr "My purchases"
+
+msgid "Покупок пока нет."
+msgstr "No purchases yet."
+
+msgid "Перейти в каталог"
+msgstr "Browse the catalog"
+
+msgid "Панель управления"
+msgstr "Control panel"
+
+msgid "Обзор"
+msgstr "Overview"
+
+msgid "Игры и ПО"
+msgstr "Games & software"
+
+msgid "Разделы форума"
+msgstr "Forum sections"
+
+msgid "Темы форума"
+msgstr "Forum topics"
+
+msgid "Обращения"
+msgstr "Enquiries"
+
+msgid "Заказы"
+msgstr "Orders"
+
+msgid "Django admin"
+msgstr "Django admin"
+
+msgid "Добавить раздел"
+msgstr "Add section"
+
+msgid "Порядок"
+msgstr "Order"
+
+msgid "Изменить"
+msgstr "Edit"
+
+msgid "Удаление"
+msgstr "Delete"
+
+msgid "Да, удалить"
+msgstr "Yes, delete"
+
+msgid "Отмена"
+msgstr "Cancel"
+
+#, python-format
+msgid "Удалить «%(obj)s»? Это действие нельзя отменить."
+msgstr "Delete “%(obj)s”? This cannot be undone."
+
+msgid "Назад к списку"
+msgstr "Back to list"
+
+msgid "Редактирование"
+msgstr "Editing"
+
+msgid "Открыть на сайте"
+msgstr "View on site"
+
+msgid "Добавить игру / ПО"
+msgstr "Add game / software"
+
+msgid "продаж"
+msgstr "sales"
+
+msgid "выручка"
+msgstr "revenue"
+
+msgid "пользователей"
+msgstr "users"
+
+msgid "Популярные продукты"
+msgstr "Top products"
+
+msgid "Новые обращения"
+msgstr "New enquiries"
+
+msgid "Необработанных обращений нет."
+msgstr "No unprocessed enquiries."
+
+msgid "Последние заказы"
+msgstr "Recent orders"
+
+msgid "Все заказы"
+msgstr "All orders"
+
+msgid "Заказов пока нет."
+msgstr "No orders yet."
+
+msgid "Необработанные"
+msgstr "Unprocessed"
+
+msgid "Вернуть в работу"
+msgstr "Reopen"
+
+msgid "Обработано"
+msgstr "Processed"
+
+msgid "Покупатель"
+msgstr "Customer"
+
+msgid "Добавить"
+msgstr "Add"
+
+msgid "Поиск по названию или разработчику"
+msgstr "Search by title or developer"
+
+msgid "Название"
+msgstr "Title"
+
+msgid "Цена"
+msgstr "Price"
+
+msgid "Продаж"
+msgstr "Sales"
+
+msgid "Опубликован"
+msgstr "Published"
+
+msgid "Скрыт"
+msgstr "Hidden"
+
+msgid "Файл не загружен"
+msgstr "No file uploaded"
+
+msgid "нет файла"
+msgstr "no file"
+
+msgid "Открепить"
+msgstr "Unpin"
+
+msgid "Закрепить"
+msgstr "Pin"
+
+msgid "Открыть"
+msgstr "Unlock"
+
+msgid "Закрыть"
+msgstr "Lock"
+
+msgid "Часть адреса страницы. Оставьте пустым — заполнится из названия."
+msgstr "Part of the page URL. Leave empty to generate it from the title."
+
+msgid "Такой адрес уже занят."
+msgstr "This URL is already taken."
+
+#, python-format
+msgid "«%(obj)s» добавлен в каталог."
+msgstr "“%(obj)s” added to the catalog."
+
+msgid "Новый продукт"
+msgstr "New product"
+
+#, python-format
+msgid "Изменения в «%(obj)s» сохранены."
+msgstr "Changes to “%(obj)s” saved."
+
+msgid "У продукта есть заказы, удалить его нельзя. Снимите его с публикации."
+msgstr "This product has orders and cannot be deleted. Unpublish it instead."
+
+msgid "Продукт удалён."
+msgstr "Product deleted."
+
+#, python-format
+msgid "Раздел «%(obj)s» создан."
+msgstr "Section “%(obj)s” created."
+
+msgid "Новый раздел форума"
+msgstr "New forum section"
+
+#, python-format
+msgid "Раздел «%(obj)s» сохранён."
+msgstr "Section “%(obj)s” saved."
+
+msgid ""
+"Платёж обрабатывает Paddle.com — официальный продавец (Merchant of Record). "
+"Итоговая сумма может включать налог вашей страны."
+msgstr ""
+"Payment is processed by Paddle.com, the Merchant of Record. The final amount"
+" may include your local tax."
+
+msgid "Перейти к оплате"
+msgstr "Proceed to payment"
+
+msgid "Администратор"
+msgstr "Administrator"
+
+msgid "Тестер"
+msgstr "Tester"
+
+msgid "Игрок"
+msgstr "Player"
+
+msgid "Учётные записи"
+msgstr "Accounts"
+
+msgid "тестовая сборка"
+msgstr "test build"
+
+msgid "Неопубликованный продукт будет доступен группе «Тестеры» для проверки."
+msgstr ""
+"An unpublished product will be available to the Testers group for testing."
+
+msgid "Тестовая сборка — видна только тестерам и администраторам"
+msgstr "Test build — visible only to testers and administrators"
+
+msgid "Не опубликовано"
+msgstr "Not published"
+
+msgid "Бесплатно по роли «%(role)s»"
+msgstr "Free with the “%(role)s” role"
+
+msgid "Личный кабинет"
+msgstr "My account"
+
+msgid "куплено продуктов"
+msgstr "products purchased"
+
+msgid "потрачено"
+msgstr "spent"
+
+msgid "ожидают оплаты"
+msgstr "awaiting payment"
+
+msgid "Моя библиотека"
+msgstr "My library"
+
+msgid "История покупок"
+msgstr "Purchase history"
+
+msgid "Тестовая сборка"
+msgstr "Test build"
+
+msgid "Снят с продажи"
+msgstr "No longer sold"
+
+msgid "Доступно по роли «%(role)s»"
+msgstr "Available with the “%(role)s” role"
+
+msgid "Файл ещё не загружен"
+msgstr "File not uploaded yet"
+
+msgid "Купленные игры и программы"
+msgstr "Purchased games and software"
+
+msgid ""
+"Как тестер вы скачиваете платные продукты и тестовые сборки бесплатно. "
+"Сообщайте об ошибках на форуме или через форму связи."
+msgstr ""
+"As a tester you download paid products and test builds for free. Report bugs"
+" on the forum or via the contact form."
+
+msgid "Администраторам доступны все продукты, включая неопубликованные."
+msgstr ""
+"Administrators have access to all products, including unpublished ones."
+
+msgid "Проверить"
+msgstr "Check"
+
+msgid "Купить снова"
+msgstr "Buy again"
+
+msgid "Заказов с таким статусом нет."
+msgstr "No orders with this status."
+
+msgid "Группа"
+msgstr "Group"
+
+msgid "Неизвестная группа."
+msgstr "Unknown group."
+
+msgid "Нельзя изменить собственную группу."
+msgstr "You cannot change your own group."
+
+msgid "Суперпользователь всегда остаётся администратором."
+msgstr "A superuser always stays an administrator."
+
+msgid "%(user)s теперь в группе «%(role)s»."
+msgstr "%(user)s is now in the “%(role)s” group."
+
+msgid "Пользователи"
+msgstr "Users"
+
+msgid "Пользователи и группы"
+msgstr "Users and groups"
+
+msgid ""
+"Администраторы управляют сайтом и скачивают всё бесплатно. Тестеры бесплатно"
+" получают платные продукты и тестовые сборки. Игроки покупают продукты; в "
+"эту группу попадают все новые пользователи."
+msgstr ""
+"Administrators manage the site and download everything for free. Testers get"
+" paid products and test builds for free. Players buy products; all new users"
+" join this group."
+
+msgid "Логин или e-mail"
+msgstr "Username or e-mail"
+
+msgid "Пользователь"
+msgstr "User"
+
+msgid "Покупок"
+msgstr "Purchases"
+
+msgid "Сменить группу"
+msgstr "Change group"
+
+msgid "это вы"
+msgstr "this is you"
+
+msgid "суперпользователь"
+msgstr "superuser"
+
+msgid "Пользователи не найдены."
+msgstr "No users found."
+
+msgid "Зелёный"
+msgstr "Green"
+
+msgid "Оранжевый"
+msgstr "Orange"
+
+msgid "Красный"
+msgstr "Red"
+
+msgid "Синий"
+msgstr "Blue"
+
+msgid "Фиолетовый"
+msgstr "Purple"
+
+msgid "Серый"
+msgstr "Gray"
+
+msgid "цвет значка"
+msgstr "badge color"
+
+msgid ""
+"Если пользователь в нескольких группах, действует группа с меньшим числом."
+msgstr ""
+"If a user is in several groups, the one with the lower number applies."
+
+msgid "панель управления"
+msgstr "control panel"
+
+msgid ""
+"Управление каталогом, форумом, заказами, пользователями и группами; вход в "
+"Django admin."
+msgstr ""
+"Manage the catalog, forum, orders, users and groups; access to Django admin."
+
+msgid "модерация форума"
+msgstr "forum moderation"
+
+msgid "Удаление чужих сообщений, ответы в закрытых темах, значок «Команда»."
+msgstr "Delete other users' posts, reply in locked topics, “Team” badge."
+
+msgid "платные продукты бесплатно"
+msgstr "paid products for free"
+
+msgid "Скачивание платных игр и ПО без покупки."
+msgstr "Download paid games and software without buying."
+
+msgid "тестовые сборки"
+msgstr "test builds"
+
+msgid "Доступ к неопубликованным продуктам с отметкой «тестовая сборка»."
+msgstr "Access to unpublished products marked as “test build”."
+
+msgid "группа по умолчанию"
+msgstr "default group"
+
+msgid "В эту группу попадают новые пользователи. Может быть только одна."
+msgstr "New users join this group. There can be only one."
+
+msgid "группа пользователей"
+msgstr "user group"
+
+msgid "группы пользователей"
+msgstr "user groups"
+
+msgid "Администраторы"
+msgstr "Administrators"
+
+msgid "Тестеры"
+msgstr "Testers"
+
+msgid "Игроки"
+msgstr "Players"
+
+msgid "Нет доступа"
+msgstr "No access"
+
+msgid "Только чтение"
+msgstr "Read only"
+
+msgid "Чтение и запись"
+msgstr "Read and write"
+
+msgid "доступ"
+msgstr "access"
+
+msgid "доступ к разделу"
+msgstr "category access"
+
+msgid "доступ к разделам"
+msgstr "category access"
+
+msgid ""
+"Неопубликованный продукт будет доступен группам с правом «тестовые сборки»."
+msgstr ""
+"An unpublished product will be available to groups with the “test builds” "
+"permission."
+
+msgid "Ваша группа скачивает эти продукты без покупки."
+msgstr "Your group downloads these products without buying."
+
+msgid "В этом разделе у вашей группы доступ только для чтения."
+msgstr "Your group has read-only access to this section."
+
+msgid "Тема закрыта, но вы можете ответить как модератор."
+msgstr "The topic is locked, but you can reply as a moderator."
+
+msgid "Ключ"
+msgstr "Key"
+
+msgid "Латиница, цифры и дефис. Оставьте пустым — будет создан автоматически."
+msgstr ""
+"Latin letters, digits and hyphens. Leave empty to generate automatically."
+
+msgid ""
+"Группа «Администраторы» всегда имеет доступ к панели, чтобы не потерять "
+"управление сайтом."
+msgstr ""
+"The Administrators group always has panel access so the site is never left "
+"without management."
+
+msgid "Группа с таким ключом уже есть."
+msgstr "A group with this key already exists."
+
+msgid "Должна остаться группа по умолчанию. Назначьте её в другой группе."
+msgstr "There must be a default group. Assign it in another group."
+
+msgid "Группа «%(obj)s» создана."
+msgstr "Group “%(obj)s” created."
+
+msgid "Новая группа"
+msgstr "New group"
+
+msgid "Группа «%(obj)s» сохранена."
+msgstr "Group “%(obj)s” saved."
+
+msgid ""
+"Эту группу нельзя удалить: это группа администраторов или группа по "
+"умолчанию."
+msgstr ""
+"This group cannot be deleted: it is the administrators group or the default "
+"group."
+
+msgid "Группа «%(role)s» удалена, её участники перенесены в «%(default)s»."
+msgstr "Group “%(role)s” deleted, its members moved to “%(default)s”."
+
+msgid "Группы и доступ"
+msgstr "Groups and access"
+
+msgid ""
+"Каждый пользователь состоит в одной группе. Права группы определяют доступ к"
+" панели управления, модерации, платным продуктам, тестовым сборкам и "
+"разделам форума."
+msgstr ""
+"Each user belongs to one group. Group permissions control access to the "
+"control panel, moderation, paid products, test builds and forum sections."
+
+msgid "Модерация форума"
+msgstr "Forum moderation"
+
+msgid "Платные продукты бесплатно"
+msgstr "Paid products for free"
+
+msgid "Тестовые сборки"
+msgstr "Test builds"
+
+msgid "Ограничен доступ к разделам форума: %(n)s из %(total)s"
+msgstr "Restricted forum sections: %(n)s of %(total)s"
+
+msgid "Полный доступ ко всем разделам форума"
+msgstr "Full access to all forum sections"
+
+msgid "Группа по умолчанию"
+msgstr "Default group"
+
+msgid "Системная"
+msgstr "System"
+
+msgid "Основное"
+msgstr "General"
+
+msgid "Права"
+msgstr "Permissions"
+
+msgid "Доступ к разделам форума"
+msgstr "Forum section access"
+
+msgid ""
+"«Нет доступа» скрывает раздел и его темы; «Только чтение» запрещает "
+"создавать темы и отвечать."
+msgstr ""
+"“No access” hides the section and its topics; “Read only” forbids creating "
+"topics and replying."
+
+msgid "Доступ"
+msgstr "Access"
+
+msgid "Удаление группы"
+msgstr "Delete group"
+
+msgid "Удалить группу"
+msgstr "Delete group"
+
+msgid ""
+"Участников в группе: %(n)s. Они будут перенесены в группу «%(default)s». "
+"Настройки доступа к форуму для этой группы удалятся."
+msgstr ""
+"Members in the group: %(n)s. They will be moved to “%(default)s”. This "
+"group's forum access settings will be deleted."
+
+msgid "Настроить группы"
+msgstr "Configure groups"
+
+msgid "аватар"
+msgstr "avatar"
+
+msgid "профиль"
+msgstr "profile"
+
+msgid "профили"
+msgstr "profiles"
+
+msgid "Новый аватар"
+msgstr "New avatar"
+
+msgid ""
+"JPG, PNG, WebP или GIF до 3 МБ. Картинка будет обрезана до квадрата 256×256."
+msgstr ""
+"JPG, PNG, WebP or GIF up to 3 MB. The image will be cropped to a 256×256 "
+"square."
+
+msgid "Файл больше 3 МБ."
+msgstr "The file is larger than 3 MB."
+
+msgid "Не удалось прочитать изображение. Загрузите JPG, PNG, WebP или GIF."
+msgstr "Could not read the image. Upload a JPG, PNG, WebP or GIF."
+
+msgid "Аватар обновлён."
+msgstr "Avatar updated."
+
+msgid "Аватар удалён."
+msgstr "Avatar removed."
+
+msgid "Аватар"
+msgstr "Avatar"
+
+msgid "Загрузить"
+msgstr "Upload"
+
+msgid "Удалить аватар"
+msgstr "Remove avatar"
+
+msgid "Сменить аватар"
+msgstr "Change avatar"
+
+msgid "Официальный портал GameHub"
+msgstr "Official GameHub portal"
+
+msgid "Аватар пользователя %(user)s удалён."
+msgstr "%(user)s's avatar removed."
+
+msgid "Слишком много запросов. Попробуйте снова через час."
+msgstr "Too many requests. Please try again in an hour."
+
+msgid "Пароль на GameHub изменён"
+msgstr "Your GameHub password was changed"
+
+msgid "Пароль изменён. Войдите с новым паролем."
+msgstr "Password changed. Log in with your new password."
+
+msgid "Восстановление пароля"
+msgstr "Password recovery"
+
+msgid ""
+"Укажите e-mail, который вы использовали при регистрации. Мы пришлём ссылку "
+"для создания нового пароля."
+msgstr ""
+"Enter the e-mail you used to sign up. We will send you a link to create a "
+"new password."
+
+msgid "Отправить ссылку"
+msgstr "Send link"
+
+msgid "Вернуться ко входу"
+msgstr "Back to login"
+
+msgid "Проверьте почту"
+msgstr "Check your e-mail"
+
+msgid ""
+"Если этот e-mail зарегистрирован, на него отправлено письмо со ссылкой для "
+"сброса пароля."
+msgstr ""
+"If this e-mail is registered, we have sent it a message with a password "
+"reset link."
+
+msgid ""
+"Ссылка действует %(hours)s часа и срабатывает один раз. Если письма нет, "
+"проверьте папку «Спам» или запросите ссылку ещё раз через несколько минут."
+msgstr ""
+"The link is valid for %(hours)s hours and works once. If there is no e-mail,"
+" check your spam folder or request a new link in a few minutes."
+
+msgid "Новый пароль"
+msgstr "New password"
+
+msgid "Придумайте новый пароль для учётной записи %(name)s."
+msgstr "Choose a new password for the account %(name)s."
+
+msgid "Сохранить пароль"
+msgstr "Save password"
+
+msgid "Ссылка недействительна"
+msgstr "Invalid link"
+
+msgid "Ссылка устарела или уже была использована. Запросите новую."
+msgstr "The link has expired or has already been used. Request a new one."
+
+msgid "Запросить новую ссылку"
+msgstr "Request a new link"
+
+msgid "Пароль изменён"
+msgstr "Password changed"
+
+msgid ""
+"Теперь вы можете войти с новым паролем. На других устройствах потребуется "
+"войти заново."
+msgstr ""
+"You can now log in with your new password. You will need to log in again on "
+"other devices."
+
+msgid "Сброс пароля на GameHub"
+msgstr "GameHub password reset"
+
+msgid "Здравствуйте, %(name)s!"
+msgstr "Hello, %(name)s!"
+
+msgid ""
+"Кто-то (надеемся, вы) запросил сброс пароля для вашей учётной записи на "
+"GameHub. Чтобы задать новый пароль, перейдите по ссылке:"
+msgstr ""
+"Someone (hopefully you) requested a password reset for your GameHub account."
+" To set a new password, follow the link:"
+
+msgid "Ссылка действует 2 часа и срабатывает один раз."
+msgstr "The link is valid for 2 hours and works once."
+
+msgid ""
+"Если вы не запрашивали сброс, просто проигнорируйте это письмо — пароль "
+"останется прежним."
+msgstr ""
+"If you did not request a reset, just ignore this e-mail — your password will"
+" stay the same."
+
+msgid "Команда GameHub"
+msgstr "The GameHub team"
+
+msgid "Задать новый пароль"
+msgstr "Set a new password"
+
+msgid ""
+"Пароль от вашей учётной записи на GameHub только что был изменён через "
+"восстановление по e-mail."
+msgstr ""
+"The password for your GameHub account has just been changed via e-mail "
+"recovery."
+
+msgid "Если это были вы, ничего делать не нужно. Войти:"
+msgstr "If it was you, there is nothing to do. Log in:"
+
+msgid ""
+"Если вы не меняли пароль, немедленно восстановите доступ через «Забыли "
+"пароль?» и напишите нам:"
+msgstr ""
+"If you did not change your password, restore access right away via “Forgot "
+"password?” and contact us:"
+
+msgid "Забыли пароль?"
+msgstr "Forgot password?"

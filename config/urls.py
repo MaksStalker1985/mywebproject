@@ -1,0 +1,31 @@
+from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
+
+from payments import views as payments_views
+
+urlpatterns = [
+    # Переключение языка (POST с полем language)
+    path("i18n/", include("django.conf.urls.i18n")),
+    # Уведомления от Stripe — без языкового префикса
+    path("payments/webhook/stripe/", payments_views.stripe_webhook, name="stripe_webhook"),
+    path("payments/webhook/paddle/", payments_views.paddle_webhook, name="paddle_webhook"),
+    # Укажите этот адрес в Paddle → Checkout settings → Default payment link
+    path("payments/paddle/pay/", payments_views.paddle_payment_link, name="paddle_payment_link"),
+]
+
+# Все страницы сайта получают префикс языка: /ru/, /en/, /uk/
+urlpatterns += i18n_patterns(
+    path("admin/", admin.site.urls),
+    path("", include("core.urls")),
+    path("catalog/", include("catalog.urls")),
+    path("forum/", include("forum.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("payments/", include("payments.urls")),
+    path("manage/", include("dashboard.urls")),
+)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

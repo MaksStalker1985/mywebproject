@@ -1,0 +1,48 @@
+{% extends "dashboard/base.html" %}
+{% load i18n avatars %}
+{% block title %}{% translate "Пользователи" %}{% endblock %}
+
+{% block dash %}
+<div class="section-head">
+  <h1>{% translate "Пользователи" %}</h1>
+  <a class="btn btn-ghost" href="{% url 'dashboard:roles' %}">🛡 {% translate "Настроить группы" %}</a>
+</div>
+<div class="section-head">
+  <div class="tabs">
+    <a href="?" {% if not request.GET.role %}class="active"{% endif %}>{% translate "Все" %}</a>
+    {% for r in roles %}<a href="?role={{ r.key }}" {% if request.GET.role == r.key %}class="active"{% endif %}>{{ r.display_title }} <span class="muted">{{ r.members }}</span></a>{% endfor %}
+  </div>
+  <form method="get" class="inline">
+    {% if request.GET.role %}<input type="hidden" name="role" value="{{ request.GET.role }}">{% endif %}
+    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="{% translate 'Логин или e-mail' %}">
+  </form>
+</div>
+<div class="table dash-table cols-5">
+  <div class="row head"><span>{% translate "Пользователь" %}</span><span>{% translate "Группа" %}</span><span>{% translate "Покупок" %}</span><span>{% translate "Регистрация" %}</span><span>{% translate "Сменить группу" %}</span></div>
+  {% for u in page_obj %}
+    <div class="row">
+      <span class="author-cell">{% avatar u 34 %}<span><span class="row-title">{{ u.username }}</span><small class="muted">{{ u.email|default:"—" }}</small>
+        {% if u.profile.avatar %}<form method="post" action="{% url 'dashboard:user_avatar_delete' u.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn">{% translate "Удалить аватар" %}</button></form>{% endif %}</span></span>
+      <span>{% if u.role %}<span class="role-badge role-{{ u.role.color }}">{{ u.role.display_title }}</span>{% endif %}</span>
+      <span>{{ u.purchases }}</span>
+      <span class="muted">{{ u.date_joined|date:"SHORT_DATE_FORMAT" }}</span>
+      <span>
+        {% if u == user %}<span class="muted small">{% translate "это вы" %}</span>
+        {% elif u.is_superuser %}<span class="muted small">{% translate "суперпользователь" %}</span>
+        {% else %}
+        <form method="post" action="{% url 'dashboard:user_role' u.pk %}" class="role-form">
+          {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <select name="role" aria-label="{% translate 'Группа' %}">
+            {% for r in roles %}<option value="{{ r.key }}" {% if r.pk == u.role.pk %}selected{% endif %}>{{ r.display_title }}</option>{% endfor %}
+          </select>
+          <button class="btn btn-sm">{% translate "Сохранить" %}</button>
+        </form>
+        {% endif %}
+      </span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Пользователи не найдены." %}</p>
+  {% endfor %}
+</div>
+{% with page=page_obj %}{% include "_pagination.html" %}{% endwith %}
+{% endblock %}

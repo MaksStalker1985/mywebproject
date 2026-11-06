@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Регистрация" %}{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+  <h1>{% translate "Регистрация" %}</h1>
+  <form method="post" class="card form">
+    {% csrf_token %}
+    {% include "_form_fields.html" %}
+    <button class="btn btn-block">{% translate "Создать учётную запись" %}</button>
+  </form>
+  <p class="muted">{% translate "Уже зарегистрированы?" %} <a href="{% url 'accounts:login' %}">{% translate "Войти" %}</a></p>
+</div>
+{% endblock %}

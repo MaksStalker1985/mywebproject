@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Форум" %}{% endblock %}
+
+{% block content %}
+<h1>{% translate "Форум" %}</h1>
+<div class="table forum-table">
+  <div class="row head">
+    <span>{% translate "Раздел" %}</span><span>{% translate "Темы" %}</span><span>{% translate "Сообщения" %}</span><span>{% translate "Активность" %}</span>
+  </div>
+  {% for c in categories %}
+    <div class="row">
+      <span><a class="row-title" href="{{ c.get_absolute_url }}">{{ c.title }}</a>{% if not c.can_write %} <span class="tag">👁 {% translate "Только чтение" %}</span>{% endif %}<small class="muted">{{ c.description }}</small></span>
+      <span>{{ c.topic_count }}</span>
+      <span>{{ c.post_count }}</span>
+      <span class="muted">{% if c.last_post %}{{ c.last_post|timesince }}{% else %}—{% endif %}</span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Разделы ещё не созданы." %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

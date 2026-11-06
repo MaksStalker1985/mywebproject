@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Оплата" %}{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+  <h1>{% translate "Оплата заказа" %} #{{ order.pk }}</h1>
+  <div class="card">
+    <dl class="specs">
+      <dt>{% translate "Продукт" %}</dt><dd>{{ order.product.title }} {{ order.product.version }}</dd>
+      <dt>{% translate "К оплате" %}</dt><dd><strong>{{ order.amount|floatformat:"-2" }} {{ order.currency }}</strong></dd>
+    </dl>
+    <p class="muted small">{% translate "Платёж обрабатывает Paddle.com — официальный продавец (Merchant of Record). Итоговая сумма может включать налог вашей страны." %}</p>
+    <div class="hero-actions">
+      <button class="btn" id="paddle-open">💳 {% translate "Перейти к оплате" %}</button>
+      <a class="btn btn-ghost" href="{{ paddle.cancelUrl }}">{% translate "Отменить" %}</a>
+    </div>
+  </div>
+</div>
+
+{{ paddle|json_script:"paddle-config" }}
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+  (function () {
+    var cfg = JSON.parse(document.getElementById("paddle-config").textContent);
+    var completed = false;
+    if (cfg.sandbox) Paddle.Environment.set("sandbox");
+    Paddle.Initialize({
+      token: cfg.token,
+      eventCallback: function (e) {
+        if (e.name === "checkout.completed") completed = true;
+        if (e.name === "checkout.closed" && !completed) window.location = cfg.cancelUrl;
+      }
+    });
+    function open() {
+      var settings = { successUrl: cfg.successUrl };
+      if (cfg.locale) settings.locale = cfg.locale;
+      Paddle.Checkout.open({
+        transactionId: cfg.transactionId,
+        customer: cfg.email ? { email: cfg.email } : undefined,
+        settings: settings
+      });
+    }
+    document.getElementById("paddle-open").addEventListener("click", open);
+    open();
+  })();
+</script>
+{% endblock %}

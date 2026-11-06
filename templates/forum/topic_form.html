@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Новая тема" %}{% endblock %}
+
+{% block content %}
+<nav class="crumbs">
+  <a href="{% url 'forum:index' %}">{% translate "Форум" %}</a> /
+  <a href="{{ category.get_absolute_url }}">{{ category }}</a> /
+</nav>
+<h1>{% translate "Новая тема" %}</h1>
+<form method="post" class="card form">
+  {% csrf_token %}
+  {% include "_form_fields.html" %}
+  <button class="btn">{% translate "Создать тему" %}</button>
+</form>
+{% endblock %}

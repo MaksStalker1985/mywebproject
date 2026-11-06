@@ -1,0 +1,30 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Обращения" %}{% endblock %}
+
+{% block dash %}
+<h1>{% translate "Обращения" %}</h1>
+<div class="tabs">
+  <a href="?" {% if request.GET.show != "all" %}class="active"{% endif %}>{% translate "Необработанные" %}</a>
+  <a href="?show=all" {% if request.GET.show == "all" %}class="active"{% endif %}>{% translate "Все" %}</a>
+</div>
+<div class="posts">
+  {% for m in page_obj %}
+    <article class="card post" id="msg-{{ m.pk }}">
+      <header>
+        <strong>{{ m.get_topic_display }}</strong>
+        {% if m.product %}<span class="tag">{{ m.product }}</span>{% endif %}
+        <span class="muted small">{{ m.name }} · <a href="mailto:{{ m.email }}">{{ m.email }}</a> · {{ m.created_at|date:"DATETIME_FORMAT" }}</span>
+        <form method="post" action="{% url 'dashboard:message_toggle' m.pk %}" class="inline push-right">
+          {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="btn btn-sm {% if m.is_processed %}btn-ghost{% endif %}">{% if m.is_processed %}{% translate "Вернуть в работу" %}{% else %}✓ {% translate "Обработано" %}{% endif %}</button>
+        </form>
+      </header>
+      <div class="prose">{{ m.message|linebreaks }}</div>
+    </article>
+  {% empty %}
+    <p class="muted">{% translate "Необработанных обращений нет." %}</p>
+  {% endfor %}
+</div>
+{% with page=page_obj %}{% include "_pagination.html" %}{% endwith %}
+{% endblock %}

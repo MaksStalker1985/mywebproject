@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n avatars %}
+{% block title %}{% translate "Главная" %}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div>
+    <span class="eyebrow">{% translate "Официальный портал GameHub" %}</span>
+    <h1>{% translate "Игры и программы — напрямую от производителя" %}</h1>
+    <p class="lead">{% blocktranslate %}Скачивайте официальные сборки, следите за обновлениями и общайтесь с командой разработчиков и другими игроками на форуме.{% endblocktranslate %}</p>
+    <div class="hero-actions">
+      <a class="btn btn-lg" href="{% url 'catalog:games' %}">{% translate "Каталог игр" %}</a>
+      <a class="btn btn-lg btn-ghost" href="{% url 'catalog:software' %}">{% translate "Программы" %}</a>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><strong>{{ games_count }}</strong><span>{% translate "игр" %}</span></div>
+    <div class="stat"><strong>{{ software_count }}</strong><span>{% translate "программ" %}</span></div>
+    <div class="stat"><strong>3</strong><span>{% translate "языка интерфейса" %}</span></div>
+  </div>
+</section>
+
+{% if featured %}
+<section>
+  <div class="section-head"><h2>{% translate "Рекомендуем" %}</h2><a href="{% url 'catalog:list' %}">{% translate "Весь каталог" %} →</a></div>
+  <div class="grid">{% for p in featured %}{% include "catalog/_card.html" %}{% endfor %}</div>
+</section>
+{% endif %}
+
+<section class="two-col">
+  <div>
+    <div class="section-head"><h2>{% translate "Новинки" %}</h2></div>
+    <ul class="list">
+      {% for p in latest %}
+        <li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a> <span class="muted">· {{ p.get_kind_display }} · {{ p.created_at|date:"SHORT_DATE_FORMAT" }}</span></li>
+      {% empty %}
+        <li class="muted">{% translate "Каталог пока пуст." %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div>
+    <div class="section-head"><h2>{% translate "На форуме" %}</h2><a href="{% url 'forum:index' %}">{% translate "Перейти" %} →</a></div>
+    <ul class="list">
+      {% for t in topics %}
+        <li class="author-cell">{% avatar t.author 28 %} <span><a href="{{ t.get_absolute_url }}">{{ t.title }}</a> <span class="muted">· {{ t.category }} · {{ t.author }}</span></span></li>
+      {% empty %}
+        <li class="muted">{% translate "Тем пока нет." %}</li>
+      {% endfor %}
+    </ul>
+    {% if not user.is_authenticated %}<p class="muted small">{% translate "Для чтения и участия в форуме нужна учётная запись." %}</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

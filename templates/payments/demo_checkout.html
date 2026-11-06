@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Оплата" %}{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+  <h1>{% translate "Оплата заказа" %} #{{ order.pk }}</h1>
+  <p class="msg msg-warning">{% translate "Демо-режим: реальные деньги не списываются. Для приёма карт настройте Stripe (PAYMENTS_PROVIDER=stripe)." %}</p>
+  <div class="card">
+    <dl class="specs">
+      <dt>{% translate "Продукт" %}</dt><dd>{{ order.product.title }} {{ order.product.version }}</dd>
+      <dt>{% translate "К оплате" %}</dt><dd><strong>{{ order.amount|floatformat:"-2" }} {{ order.currency }}</strong></dd>
+    </dl>
+    <form method="post" class="hero-actions">
+      {% csrf_token %}
+      <button class="btn" name="action" value="pay">💳 {% translate "Оплатить (тест)" %}</button>
+      <button class="btn btn-ghost" name="action" value="cancel">{% translate "Отменить" %}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Заказы" %}{% endblock %}
+
+{% block dash %}
+<h1>{% translate "Заказы" %}</h1>
+<div class="tabs">
+  <a href="?" {% if not request.GET.status %}class="active"{% endif %}>{% translate "Все" %}</a>
+  {% for value, label in statuses %}<a href="?status={{ value }}" {% if request.GET.status == value %}class="active"{% endif %}>{{ label }}</a>{% endfor %}
+</div>
+<div class="table dash-table">
+  <div class="row head"><span>{% translate "Заказ" %}</span><span>{% translate "Покупатель" %}</span><span>{% translate "Сумма" %}</span><span>{% translate "Статус" %}</span><span>{% translate "Оплата" %}</span><span>{% translate "Дата" %}</span></div>
+  {% for o in page_obj %}
+    <div class="row">
+      <span><span class="row-title">#{{ o.pk }} · {{ o.product.title }}</span><small class="muted">{{ o.provider_payment_id }}</small></span>
+      <span>{{ o.user.username }}<small class="muted">{{ o.user.email }}</small></span>
+      <span>{{ o.amount|floatformat:"-2" }} {{ o.currency }}</span>
+      <span class="status-{{ o.status }}">{{ o.get_status_display }}</span>
+      <span>{{ o.provider }}</span>
+      <span class="muted">{{ o.created_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Заказов пока нет." %}</p>
+  {% endfor %}
+</div>
+{% with page=page_obj %}{% include "_pagination.html" %}{% endwith %}
+{% endblock %}
