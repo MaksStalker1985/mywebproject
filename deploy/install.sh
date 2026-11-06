@@ -1,29 +1,40 @@
 #!/usr/bin/env bash
-# Первичная установка TechVault на Ubuntu Server 22.04 / 24.04.
+# Первичная установка TechVault на Ubuntu Server.
 #
 #   sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
+#
+# Раскладка на сервере (совпадает с существующей конфигурацией nginx):
+#   /var/www/django-site            — проект (manage.py), он же git-репозиторий
+#   /var/www/django-site/venv       — виртуальное окружение
+#   /var/www/django-site/media      — загруженные файлы, /var/www/django-site/staticfiles — статика
+#   /run/django-site.sock           — сокет gunicorn (создаёт django-site.socket)
+#   /etc/techvault/techvault.env    — настройки и секреты
 #
 # Переменные:
 #   DOMAIN             — домен сайта (обязательно; DNS A-запись должна указывать на этот сервер)
 #   WWW=1              — также обслуживать www.DOMAIN
 #   LETSENCRYPT_EMAIL  — e-mail для Let's Encrypt; если не задан, HTTPS не настраивается
-#   REPO_URL           — git-репозиторий; если не задан, код должен уже лежать в /srv/techvault/app
+#   REPO_URL           — git-репозиторий; если не задан, код должен уже лежать в APP_DIR
 #   BRANCH             — ветка (по умолчанию main)
+#   APP_DIR            — каталог проекта (по умолчанию /var/www/django-site)
 #   ADMIN_USERNAME     — логин администратора сайта (по умолчанию admin), ADMIN_EMAIL — его e-mail
 #
 # Пароли (почтового ящика и администратора) скрипт спрашивает при запуске — не передавайте их
 # в командной строке, чтобы они не попали в историю shell.
 #
-# Скрипт можно запускать повторно: существующие пароли, база и .env не перезаписываются.
+# Скрипт можно запускать повторно: пароли, база, .env и HTTPS-настройки nginx не перезаписываются.
 set -euo pipefail
 
 APP_USER=techvault
-BASE=/srv/techvault
-APP_DIR=$BASE/app
-VENV=$BASE/venv
+SITE=django-site                       # имя юнитов systemd и конфига nginx
+APP_DIR=${APP_DIR:-/var/www/django-site}
+VENV=$APP_DIR/venv
+SOCKET=/run/$SITE.sock
 ENV_DIR=/etc/techvault
 ENV_FILE=$ENV_DIR/techvault.env
+NGINX_CONF=/etc/nginx/sites-available/$SITE
 BRANCH=${BRANCH:-main}
+STAMP=$(date +%Y%m%d-%H%M%S)
 
 log() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 die() { printf '\033[1;31mОшибка: %s\033[0m\n' "$*" >&2; exit 1; }
@@ -56,27 +67,38 @@ apt-get update -q
 apt-get install -y -q python3 python3-venv python3-dev git nginx postgresql redis-server gettext \
     certbot python3-certbot-nginx
 
-log "Пользователь и каталоги"
-id -u $APP_USER >/dev/null 2>&1 || useradd --system --home-dir $BASE --shell /usr/sbin/nologin $APP_USER
-install -d -o $APP_USER -g www-data -m 2750 $BASE $BASE/media $BASE/media/covers $BASE/media/avatars $BASE/media/downloads
-install -d -o $APP_USER -g www-data -m 2755 $BASE/static
+log "Пользователь"
+id -u $APP_USER >/dev/null 2>&1 || useradd --system --home-dir "$APP_DIR" --shell /usr/sbin/nologin $APP_USER
 
-log "Код"
-if [[ -n "${REPO_URL:-}" ]]; then
-    if [[ -d $APP_DIR/.git ]]; then
-        sudo -u $APP_USER git -C $APP_DIR pull --ff-only
-    else
-        git clone --branch "$BRANCH" "$REPO_URL" $APP_DIR
+log "Код в $APP_DIR"
+if [[ -d $APP_DIR/.git ]]; then
+    if [[ -n "${REPO_URL:-}" ]]; then
+        chown -R $APP_USER:www-data "$APP_DIR"
+        sudo -u $APP_USER git -C "$APP_DIR" pull --ff-only
     fi
+elif [[ -n "${REPO_URL:-}" ]]; then
+    if [[ -d $APP_DIR && -n "$(ls -A "$APP_DIR")" ]]; then
+        die "$APP_DIR уже существует и не пуст (это не git-репозиторий TechVault). Перенесите старый проект:
+       sudo mv $APP_DIR $APP_DIR.old-$STAMP
+и запустите скрипт снова."
+    fi
+    install -d -m 755 /var/www
+    git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
 fi
-[[ -f $APP_DIR/manage.py ]] || die "нет $APP_DIR/manage.py — задайте REPO_URL или скопируйте проект в $APP_DIR"
-chown -R $APP_USER:www-data $APP_DIR
-chmod -R g+rX,o-rwx $APP_DIR
+[[ -f $APP_DIR/manage.py && -f $APP_DIR/deploy/django-site.socket ]] \
+    || die "в $APP_DIR нет проекта TechVault — задайте REPO_URL или скопируйте проект туда"
+
+install -d -o $APP_USER -g www-data -m 2750 "$APP_DIR/media" "$APP_DIR/media/covers" \
+    "$APP_DIR/media/avatars" "$APP_DIR/media/downloads"
+install -d -o $APP_USER -g www-data -m 2750 "$APP_DIR/staticfiles"
+chown -R $APP_USER:www-data "$APP_DIR"
+chmod 2750 "$APP_DIR"
+chmod -R g+rX,o-rwx "$APP_DIR"
 
 log "Виртуальное окружение и зависимости"
-[[ -d $VENV ]] || sudo -u $APP_USER python3 -m venv $VENV
-sudo -u $APP_USER $VENV/bin/pip install -q --upgrade pip
-sudo -u $APP_USER $VENV/bin/pip install -q -r $APP_DIR/requirements-prod.txt
+[[ -d $VENV ]] || sudo -u $APP_USER python3 -m venv "$VENV"
+sudo -u $APP_USER "$VENV/bin/pip" install -q --upgrade pip
+sudo -u $APP_USER "$VENV/bin/pip" install -q -r "$APP_DIR/requirements-prod.txt"
 
 log "Файл настроек $ENV_FILE"
 install -d -o root -g $APP_USER -m 750 $ENV_DIR
@@ -88,8 +110,9 @@ if [[ ! -f $ENV_FILE ]]; then
         -e "s|^DJANGO_ALLOWED_HOSTS=.*|DJANGO_ALLOWED_HOSTS=$HOSTS|" \
         -e "s|^DJANGO_CSRF_TRUSTED_ORIGINS=.*|DJANGO_CSRF_TRUSTED_ORIGINS=$ORIGINS|" \
         -e "s|^DJANGO_SECURE_SSL_REDIRECT=.*|DJANGO_SECURE_SSL_REDIRECT=0|" \
+        -e "s|/var/www/django-site|$APP_DIR|g" \
         -e "s|example\.com|$DOMAIN|g" \
-        $APP_DIR/deploy/techvault.env.example > $ENV_FILE
+        "$APP_DIR/deploy/techvault.env.example" > $ENV_FILE
     chown root:$APP_USER $ENV_FILE
     chmod 640 $ENV_FILE
     echo "Создан $ENV_FILE."
@@ -126,10 +149,10 @@ fi
 systemctl enable --now redis-server postgresql
 
 log "Команда techvault-manage (manage.py от имени сервиса)"
-cat > /usr/local/bin/techvault-manage <<'EOF'
+cat > /usr/local/bin/techvault-manage <<EOF
 #!/bin/sh
 # Запуск manage.py с настройками сервиса: sudo techvault-manage createsuperuser
-exec sudo -u techvault sh -c 'set -a; . /etc/techvault/techvault.env; set +a; cd /srv/techvault/app && exec /srv/techvault/venv/bin/python manage.py "$@"' sh "$@"
+exec sudo -u $APP_USER sh -c 'set -a; . $ENV_FILE; set +a; cd $APP_DIR && exec $VENV/bin/python manage.py "\$@"' sh "\$@"
 EOF
 chmod 755 /usr/local/bin/techvault-manage
 
@@ -151,19 +174,50 @@ else
     echo "Администратор уже есть."
 fi
 
-log "systemd"
-install -m 644 $APP_DIR/deploy/techvault.service /etc/systemd/system/techvault.service
+log "systemd: $SITE.socket + $SITE.service"
+# Старые юниты, которые слушают тот же сокет (прежняя установка), останавливаем и сохраняем копию
+for unit in /etc/systemd/system/*.socket /etc/systemd/system/*.service; do
+    [[ -f $unit ]] || continue
+    if grep -q "$SOCKET" "$unit" && ! grep -q "TechVault" "$unit"; then
+        name=$(basename "$unit")
+        echo "Отключаю прежний юнит $name (копия: $unit.bak-$STAMP)"
+        systemctl disable --now "$name" 2>/dev/null || true
+        mv "$unit" "$unit.bak-$STAMP"
+    fi
+done
+for name in $SITE.service $SITE.socket; do
+    unit=/etc/systemd/system/$name
+    if [[ -f $unit ]] && ! grep -q "TechVault" "$unit"; then
+        systemctl disable --now "$name" 2>/dev/null || true
+        mv "$unit" "$unit.bak-$STAMP"
+        echo "Прежний $name сохранён как $unit.bak-$STAMP"
+    fi
+done
+sed -e "s|/var/www/django-site|$APP_DIR|g" "$APP_DIR/deploy/django-site.service" > /etc/systemd/system/$SITE.service
+install -m 644 "$APP_DIR/deploy/django-site.socket" /etc/systemd/system/$SITE.socket
 systemctl daemon-reload
-systemctl enable techvault
-systemctl restart techvault
+systemctl enable --now $SITE.socket
+systemctl enable $SITE.service
+systemctl restart $SITE.service
 
 log "nginx"
-# Существующий конфиг не трогаем: в нём HTTPS-настройки, добавленные certbot (FORCE_NGINX=1 — перезаписать)
-if [[ ! -f /etc/nginx/sites-available/techvault || "${FORCE_NGINX:-0}" == "1" ]]; then
+# Свой конфиг (с отметкой TechVault) не перезаписываем — в нём HTTPS-настройки certbot.
+# Чужой (прежний) — сохраняем копию и заменяем: в нём вся папка media открыта для скачивания.
+if [[ ! -f $NGINX_CONF ]] || ! grep -q "TechVault" $NGINX_CONF || [[ "${FORCE_NGINX:-0}" == "1" ]]; then
+    [[ -f $NGINX_CONF ]] && cp $NGINX_CONF "$NGINX_CONF.bak-$STAMP" && echo "Прежний конфиг: $NGINX_CONF.bak-$STAMP"
     sed -e "s|server_name example.com;|server_name ${HOSTS//,/ };|" \
-        $APP_DIR/deploy/nginx-techvault.conf > /etc/nginx/sites-available/techvault
+        -e "s|/var/www/django-site|$APP_DIR|g" \
+        "$APP_DIR/deploy/nginx-django-site.conf" > $NGINX_CONF
 fi
-ln -sf /etc/nginx/sites-available/techvault /etc/nginx/sites-enabled/techvault
+# Другие включённые сайты с этим же доменом отключаем (иначе nginx выберет не тот)
+for f in /etc/nginx/sites-enabled/*; do
+    [[ -e $f && "$(readlink -f "$f")" != "$NGINX_CONF" ]] || continue
+    if grep -Eq "server_name[^;]*[[:space:]]$DOMAIN([[:space:];]|$)" "$f"; then
+        echo "Отключаю сайт nginx $(basename "$f") — он обслуживает тот же домен"
+        rm -f "$f"
+    fi
+done
+ln -sf $NGINX_CONF /etc/nginx/sites-enabled/$SITE
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl reload nginx
@@ -176,7 +230,7 @@ if [[ -n "${LETSENCRYPT_EMAIL:-}" ]]; then
     log "HTTPS (Let's Encrypt)"
     certbot --nginx "${CERT_DOMAINS[@]}" --redirect --agree-tos --non-interactive -m "$LETSENCRYPT_EMAIL"
     sed -i "s|^DJANGO_SECURE_SSL_REDIRECT=.*|DJANGO_SECURE_SSL_REDIRECT=1|" $ENV_FILE
-    systemctl restart techvault
+    systemctl restart $SITE.service
 else
     echo "LETSENCRYPT_EMAIL не задан — сайт работает по HTTP. Для HTTPS запустите скрипт ещё раз с LETSENCRYPT_EMAIL."
 fi
@@ -187,7 +241,7 @@ cat <<EOF
 
 Дальше:
   1. Проверьте почту: войдите на сайт → «Забыли пароль?» или отправьте форму «Связь с производителем».
-  2. Ключи платёжной системы:            sudo nano $ENV_FILE  →  sudo systemctl restart techvault
-  3. Журнал сервиса:                     sudo journalctl -u techvault -f
+  2. Ключи платёжной системы:            sudo nano $ENV_FILE  →  sudo systemctl restart $SITE
+  3. Журнал сервиса:                     sudo journalctl -u $SITE -f
   4. Обновление после изменений в коде:  sudo bash $APP_DIR/deploy/update.sh
 EOF

@@ -4,21 +4,23 @@
 → **PostgreSQL** (база) + **Redis** (общий кеш). Проверено для Ubuntu 22.04 и 24.04.
 
 ```
-Интернет ──443──> nginx ──unix-сокет──> gunicorn (Django) ──> PostgreSQL
-                    │                                    └──> Redis
-                    ├── /static/          → /srv/techvault/static
-                    ├── /media/covers|avatars → /srv/techvault/media
+Интернет ──443──> nginx ──/run/django-site.sock──> gunicorn (Django) ──> PostgreSQL
+                    │                                              └──> Redis
+                    ├── /static/              → /var/www/django-site/staticfiles
+                    ├── /media/covers|avatars → /var/www/django-site/media
                     └── /protected-media/ (internal) ← X-Accel-Redirect после проверки покупки
 ```
 
 | Что | Где |
 |---|---|
-| Код | `/srv/techvault/app` |
-| Виртуальное окружение | `/srv/techvault/venv` |
-| Загруженные файлы (обложки, аватары, установщики) | `/srv/techvault/media` |
-| Собранная статика | `/srv/techvault/static` |
+| Код (git-репозиторий, manage.py) | `/var/www/django-site` |
+| Виртуальное окружение | `/var/www/django-site/venv` |
+| Загруженные файлы (обложки, аватары, установщики) | `/var/www/django-site/media` |
+| Собранная статика | `/var/www/django-site/staticfiles` |
+| Сокет gunicorn | `/run/django-site.sock` (создаёт `django-site.socket`) |
+| Конфиг nginx | `/etc/nginx/sites-available/django-site` |
 | Настройки и секреты | `/etc/techvault/techvault.env` (640, root:techvault) |
-| Сервис | `techvault.service` (пользователь `techvault`) |
+| Сервис | `django-site.service` + `django-site.socket` (пользователь `techvault`) |
 | Резервные копии | `/var/backups/techvault` |
 
 ## Запуск techvault.tech — коротко
@@ -39,7 +41,17 @@
    git push -u origin deploy-ubuntu
    ```
 
-4. **Установка** (на сервере, под пользователем с sudo):
+4. **Прежний проект.** Если в `/var/www/django-site` уже лежит другой проект (не этот git-репозиторий),
+   перенесите его — install.sh не станет ничего затирать и остановится с подсказкой:
+
+   ```bash
+   sudo mv /var/www/django-site /var/www/django-site.old
+   ```
+
+   Прежние юниты systemd, которые слушают `/run/django-site.sock`, и прежний конфиг nginx для домена
+   install.sh отключит сам и сохранит их копии с суффиксом `.bak-<дата>`.
+
+5. **Установка** (на сервере, под пользователем с sudo):
 
    ```bash
    git clone -b deploy-ubuntu https://github.com/MaksStalker1985/mywebproject.git /tmp/techvault
@@ -57,14 +69,14 @@
 
    Пароли вводятся только в терминале сервера и сохраняются в `/etc/techvault/techvault.env`
    (доступ только у root и сервиса) — в git и в код они не попадают.
-5. **Реквизиты продавца.** Войдите `https://techvault.tech/ru/manage/` → **Страницы** и в
+6. **Реквизиты продавца.** Войдите `https://techvault.tech/ru/manage/` → **Страницы** и в
    «Условия использования» и «Политика конфиденциальности» замените строку в квадратных скобках на
    ФОП/компанию, страну и адрес. Платёжные системы проверяют эти страницы перед подключением.
-6. **Платежи.** Впишите ключи Paddle (или Stripe) в `/etc/techvault/techvault.env`,
-   `sudo systemctl restart techvault`. Адреса для Paddle: Default payment link
+7. **Платежи.** Впишите ключи Paddle (или Stripe) в `/etc/techvault/techvault.env`,
+   `sudo systemctl restart django-site`. Адреса для Paddle: Default payment link
    `https://techvault.tech/payments/paddle/pay/`, уведомления `https://techvault.tech/payments/webhook/paddle/`.
-7. **Каталог.** Добавьте игры и программы через **Панель управления → Игры и ПО**, создайте разделы форума.
-8. **Проверка почты.** Выйдите и нажмите «Забыли пароль?» — письмо должно прийти с `support@techvault.tech`.
+8. **Каталог.** Добавьте игры и программы через **Панель управления → Игры и ПО**, создайте разделы форума.
+9. **Проверка почты.** Выйдите и нажмите «Забыли пароль?» — письмо должно прийти с `support@techvault.tech`.
    Чтобы письма не попадали в спам, в hPanel → Почта → Настройки DNS включите **DKIM** и добавьте **DMARC**
    (SPF уже есть).
 
@@ -94,7 +106,7 @@ scp techvault.tar.gz user@SERVER:/tmp/
 ```
 
 ```bash
-sudo mkdir -p /srv/techvault/app && sudo tar -xzf /tmp/techvault.tar.gz -C /srv/techvault/app
+sudo mkdir -p /var/www/django-site && sudo tar -xzf /tmp/techvault.tar.gz -C /var/www/django-site
 ```
 
 `git archive` берёт только закоммиченные файлы — сначала закоммитьте изменения.
@@ -112,7 +124,7 @@ sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com \
 Вариант Б:
 
 ```bash
-sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash /srv/techvault/app/deploy/install.sh
+sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash /var/www/django-site/deploy/install.sh
 ```
 
 Добавьте `WWW=1`, если нужен ещё и `www.example.com`. Без `LETSENCRYPT_EMAIL` сайт поднимется по HTTP —
@@ -137,7 +149,7 @@ sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash /srv/techvault/ap
 
    ```bash
    sudo nano /etc/techvault/techvault.env     # EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DEFAULT_FROM_EMAIL
-   sudo systemctl restart techvault
+   sudo systemctl restart django-site
    ```
 
    Чтобы письма не попадали в спам, настройте у домена SPF, DKIM и DMARC по инструкции почтового сервиса.
@@ -158,18 +170,18 @@ sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash /srv/techvault/ap
 После изменений в коде:
 
 ```bash
-sudo bash /srv/techvault/app/deploy/update.sh            # git pull + зависимости + миграции + статика + перезапуск
+sudo bash /var/www/django-site/deploy/update.sh            # git pull + зависимости + миграции + статика + перезапуск
 ```
 
-Если код копируете архивом: распакуйте его поверх `/srv/techvault/app` и запустите
-`sudo NO_PULL=1 bash /srv/techvault/app/deploy/update.sh`.
+Если код копируете архивом: распакуйте его поверх `/var/www/django-site` и запустите
+`sudo NO_PULL=1 bash /var/www/django-site/deploy/update.sh`.
 
 ## 6. Резервные копии
 
 ```bash
-sudo bash /srv/techvault/app/deploy/backup.sh            # база + media + .env в /var/backups/techvault
+sudo bash /var/www/django-site/deploy/backup.sh            # база + media + .env в /var/backups/techvault
 sudo crontab -e                                          # ежедневно в 03:30:
-# 30 3 * * * /bin/bash /srv/techvault/app/deploy/backup.sh >/var/log/techvault-backup.log 2>&1
+# 30 3 * * * /bin/bash /var/www/django-site/deploy/backup.sh >/var/log/techvault-backup.log 2>&1
 ```
 
 Копии старше 14 дней удаляются. Храните копии ещё и вне сервера (rsync, S3, облачный диск) — копия на том
@@ -179,13 +191,13 @@ sudo crontab -e                                          # ежедневно в
 
 | Проблема | Что смотреть |
 |---|---|
-| 502 Bad Gateway | `sudo systemctl status techvault`, `sudo journalctl -u techvault -n 100` |
+| 502 Bad Gateway | `sudo systemctl status django-site django-site.socket`, `sudo journalctl -u django-site -n 100` |
 | 400 Bad Request | домен не в `DJANGO_ALLOWED_HOSTS` |
 | 403 CSRF при отправке форм | адрес сайта не в `DJANGO_CSRF_TRUSTED_ORIGINS` (с `https://`) |
-| Нет стилей | `sudo techvault-manage collectstatic --noinput`, права на `/srv/techvault/static` |
-| Не скачиваются игры | файл есть в `/srv/techvault/media/downloads`, `DJANGO_DOWNLOADS_ACCEL_PREFIX=/protected-media` |
+| Нет стилей | `sudo techvault-manage collectstatic --noinput`, права на `/var/www/django-site/staticfiles` |
+| Не скачиваются игры | файл есть в `/var/www/django-site/media/downloads`, `DJANGO_DOWNLOADS_ACCEL_PREFIX=/protected-media` |
 | Ошибки nginx | `sudo nginx -t`, `sudo tail -f /var/log/nginx/error.log` |
-| Не приходят письма | `sudo journalctl -u techvault | grep -i smtp`, настройки SMTP |
+| Не приходят письма | `sudo journalctl -u django-site | grep -i smtp`, настройки SMTP |
 | Сертификат | `sudo certbot renew --dry-run` (продление автоматическое, таймер certbot) |
 
 ## Безопасность — что уже сделано
