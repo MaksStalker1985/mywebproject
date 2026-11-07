@@ -77,13 +77,15 @@ class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
             context = {"user": user, "site_name": "TechVault",
                        "login_url": self.request.build_absolute_uri(str(reverse_lazy("accounts:login"))),
                        "contact_url": self.request.build_absolute_uri(str(reverse_lazy("core:contact")))}
-            send_mail(
-                subject=_("Пароль на TechVault изменён"),
-                message=render_to_string("accounts/email/password_changed.txt", context),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
+            try:
+                send_mail(
+                    subject=_("Пароль на TechVault изменён"),
+                    message=render_to_string("accounts/email/password_changed.txt", context),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                )
+            except Exception:
+                log.exception("Не удалось отправить уведомление о смене пароля")
         return response
 
 

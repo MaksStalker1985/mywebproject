@@ -137,6 +137,9 @@ MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 # проверки покупки в Django (заголовок X-Accel-Redirect). Пусто — файл отдаёт сам Django.
 DOWNLOADS_ACCEL_PREFIX = os.environ.get("DJANGO_DOWNLOADS_ACCEL_PREFIX", "")
 # Загрузка больших установочных файлов через панель управления
+# Загрузка установочных файлов из панели — по частям (dashboard/uploads.py)
+UPLOAD_CHUNK_SIZE = int(os.environ.get("DJANGO_UPLOAD_CHUNK_MB", "8")) * 1024 * 1024
+UPLOAD_MAX_SIZE = int(os.environ.get("DJANGO_UPLOAD_MAX_GB", "50")) * 1024 ** 3
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
@@ -160,7 +163,9 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "0") == "1"
 EMAIL_USE_TLS = not EMAIL_USE_SSL and os.environ.get("EMAIL_USE_TLS", "1") == "1"
 EMAIL_TIMEOUT = 20
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "TechVault <noreply@techvault.local>")
+# Отправитель по умолчанию — адрес поддержки на домене сайта (несуществующий домен SMTP отклоняет)
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL") or "TechVault <%s>" % os.environ.get(
+    "CONTACT_EMAIL", "support@techvault.tech")
 SERVER_EMAIL = os.environ.get("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 # Адрес для ответов на письма сайта (алиас поддержки). EMAIL_HOST_USER — настоящий ящик для входа
 # в SMTP; алиас (support@) в нём указывать нельзя.

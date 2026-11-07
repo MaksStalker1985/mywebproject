@@ -1,4 +1,6 @@
+import uuid
 from decimal import Decimal
+from pathlib import Path
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -133,3 +135,35 @@ class Product(models.Model):
             return self.file.size if self.file else None
         except FileNotFoundError:
             return None
+
+
+class Upload(models.Model):
+    """Загрузка большого файла по частям (панель управления): файл собирается в
+    MEDIA_ROOT/uploads/<id>.part, после сохранения формы продукта переносится в downloads/."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="uploads")
+    filename = models.CharField(max_length=255)
+    size = models.BigIntegerField()
+    received = models.BigIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _("загрузка файла")
+        verbose_name_plural = _("загрузки файлов")
+
+    def __str__(self):
+        return f"{self.filename} ({self.received}/{self.size})"
+
+    @property
+    def is_complete(self):
+        return self.received == self.size
+
+    @property
+    def temp_path(self):
+        return Path(settings.MEDIA_ROOT) / "uploads" / f"{self.pk}.part"
+
+    def discard(self):
+        self.temp_path.unlink(missing_ok=True)
+        self.delete()

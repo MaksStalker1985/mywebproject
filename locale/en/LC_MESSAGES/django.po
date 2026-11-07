@@ -1686,3 +1686,97 @@ msgstr "posts"
 
 msgid "публикация"
 msgstr "post"
+
+msgid "Б"
+msgstr "B"
+
+msgid "КБ"
+msgstr "KB"
+
+msgid "МБ"
+msgstr "MB"
+
+msgid "ГБ"
+msgstr "GB"
+
+msgid "с"
+msgstr "s"
+
+msgid "мин"
+msgstr "min"
+
+msgid "ч"
+msgstr "h"
+
+msgid "осталось"
+msgstr "left"
+
+msgid ""
+"Большие файлы загружаются по частям с индикатором прогресса; при обрыве "
+"связи загрузка продолжится. Можно сохранять форму после того, как загрузка "
+"завершится."
+msgstr ""
+"Large files are uploaded in parts with a progress bar; if the connection "
+"drops, the upload resumes. Save the form once the upload has finished."
+
+msgid "Загружено. Нажмите «Сохранить»."
+msgstr "Uploaded. Click “Save”."
+
+msgid "Загрузка не найдена на сервере — выберите файл ещё раз."
+msgstr "Upload not found on the server — choose the file again."
+
+msgid "Загрузка файла не найдена — выберите файл ещё раз."
+msgstr "File upload not found — choose the file again."
+
+msgid "Загрузка…"
+msgstr "Uploading…"
+
+msgid "На сервере недостаточно свободного места для этого файла."
+msgstr "Not enough free space on the server for this file."
+
+msgid "Не удалось загрузить файл."
+msgstr "Failed to upload the file."
+
+msgid "Неверное смещение."
+msgstr "Wrong offset."
+
+msgid "Некорректный запрос."
+msgstr "Invalid request."
+
+msgid "Некорректный размер части."
+msgstr "Invalid chunk size."
+
+msgid "Нет связи с сервером."
+msgstr "No connection to the server."
+
+msgid "Нет связи — повтор…"
+msgstr "Connection lost — retrying…"
+
+msgid "Ошибка сервера"
+msgstr "Server error"
+
+msgid "Пауза"
+msgstr "Pause"
+
+msgid "Продолжить"
+msgstr "Resume"
+
+msgid "Файл ещё загружается — дождитесь окончания загрузки."
+msgstr "The file is still uploading — wait until it finishes."
+
+msgid ""
+"Файл ещё загружается. Дождитесь окончания загрузки и нажмите «Сохранить»."
+msgstr ""
+"The file is still uploading. Wait until it finishes, then click “Save”."
+
+msgid "Файл слишком большой: максимум %(gb)s ГБ."
+msgstr "The file is too large: maximum %(gb)s GB."
+
+msgid "Часть получена не полностью."
+msgstr "The chunk was not received completely."
+
+msgid "загрузка файла"
+msgstr "file upload"
+
+msgid "загрузки файлов"
+msgstr "file uploads"

@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
@@ -12,6 +14,8 @@ from forum.models import Topic
 
 from .forms import ContactForm
 from .models import Page
+
+log = logging.getLogger(__name__)
 
 
 def home(request):
@@ -35,14 +39,18 @@ def contact(request):
     form = ContactForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         msg = form.save()
-        # «Ответить» в почте сразу пишет посетителю
-        EmailMessage(
-            subject=f"[TechVault] {msg.get_topic_display()} — {msg.name}",
-            body=f"{msg.message}\n\n{msg.name} <{msg.email}>\n{msg.product or ''}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.CONTACT_EMAIL],
-            reply_to=[msg.email],
-        ).send(fail_silently=True)
+        # «Ответить» в почте сразу пишет посетителю. Сообщение уже сохранено (Панель → Обращения),
+        # поэтому ошибку почты посетителю не показываем, но пишем в журнал: journalctl -u django-site
+        try:
+            EmailMessage(
+                subject=f"[TechVault] {msg.get_topic_display()} — {msg.name}",
+                body=f"{msg.message}\n\n{msg.name} <{msg.email}>\n{msg.product or ''}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.CONTACT_EMAIL],
+                reply_to=[msg.email],
+            ).send()
+        except Exception:
+            log.exception("Не удалось отправить письмо из формы связи на %s", settings.CONTACT_EMAIL)
         messages.success(request, _("Спасибо! Ваше сообщение отправлено, мы ответим в ближайшее время."))
         return redirect("core:contact")
     return render(request, "core/contact.html", {"form": form, "contact_email": settings.CONTACT_EMAIL})

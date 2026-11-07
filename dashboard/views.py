@@ -79,7 +79,34 @@ class ProductListView(StaffRequiredMixin, ListView):
         return qs
 
 
-class ProductCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
+class ProductFormMixin:
+    """Форма продукта: передаёт пользователя (для проверки загрузки) и прикрепляет файл,
+    загруженный по частям."""
+
+    def get_form_kwargs(self):
+        return {**super().get_form_kwargs(), "user": self.request.user}
+
+    def get_context_data(self, **kwargs):
+        upload_i18n = {
+            "cancel": _("Отменить"), "pause": _("Пауза"), "resume": _("Продолжить"), "paused": _("Пауза"),
+            "uploading": _("Загрузка…"), "retry": _("Нет связи — повтор…"),
+            "done": _("Загружено. Нажмите «Сохранить»."), "left": _("осталось"),
+            "failed": _("Не удалось загрузить файл."), "offline": _("Нет связи с сервером."),
+            "lost": _("Загрузка не найдена на сервере — выберите файл ещё раз."), "http": _("Ошибка сервера"),
+            "wait": _("Файл ещё загружается. Дождитесь окончания загрузки и нажмите «Сохранить»."),
+            "b": _("Б"), "kb": _("КБ"), "mb": _("МБ"), "gb": _("ГБ"), "sec": _("с"), "min": _("мин"), "hour": _("ч"),
+        }
+        return super().get_context_data(chunked_upload=True, upload_i18n=upload_i18n, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if form.upload is not None:
+            from .uploads import attach_upload
+            attach_upload(form.upload, self.object)
+        return response
+
+
+class ProductCreateView(StaffRequiredMixin, ProductFormMixin, SuccessMessageMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = "dashboard/form.html"
@@ -88,7 +115,7 @@ class ProductCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
     extra_context = {"heading": gettext_lazy("Новый продукт"), "back_url": reverse_lazy("dashboard:products")}
 
 
-class ProductUpdateView(StaffRequiredMixin, SuccessMessageMixin, UpdateView):
+class ProductUpdateView(StaffRequiredMixin, ProductFormMixin, SuccessMessageMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "dashboard/form.html"

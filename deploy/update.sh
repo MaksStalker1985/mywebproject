@@ -27,6 +27,15 @@ techvault-manage migrate --noinput
 techvault-manage collectstatic --noinput -v 0
 techvault-manage check --deploy --fail-level ERROR
 
+echo "==> nginx: отдача больших файлов"
+install -m 644 "$APP_DIR/deploy/nginx-techvault-files.conf" /etc/nginx/conf.d/techvault-files.conf
+if nginx -t 2>/dev/null; then
+    systemctl reload nginx
+else
+    echo "nginx -t не прошёл с techvault-files.conf — файл убран, конфигурация не изменена" >&2
+    rm -f /etc/nginx/conf.d/techvault-files.conf
+fi
+
 echo "==> Перезапуск"
 sed -e "s|/var/www/django-site|$APP_DIR|g" "$APP_DIR/deploy/django-site.service" > /etc/systemd/system/$SITE.service
 install -m 644 "$APP_DIR/deploy/django-site.socket" /etc/systemd/system/$SITE.socket

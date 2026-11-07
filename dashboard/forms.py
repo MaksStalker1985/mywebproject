@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Role
-from catalog.models import Product
+from catalog.models import Product, Upload
 from core.models import Page
 from forum.models import Category, CategoryAccess, Subforum
 
@@ -27,9 +27,29 @@ class ProductForm(forms.ModelForm):
         }
         help_texts = {"slug": _("Часть адреса страницы. Оставьте пустым — заполнится из названия.")}
 
-    def __init__(self, *args, **kwargs):
+    # Файл, загруженный по частям (static/js/chunked-upload.js); заменяет поле «файл»
+    upload_id = forms.UUIDField(required=False, widget=forms.HiddenInput)
+
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+        self.upload = None
         self.fields["slug"].required = False
+        self.fields["file"].help_text = _(
+            "Большие файлы загружаются по частям с индикатором прогресса; при обрыве связи загрузка "
+            "продолжится. Можно сохранять форму после того, как загрузка завершится.")
+
+    def clean_upload_id(self):
+        upload_id = self.cleaned_data.get("upload_id")
+        if not upload_id:
+            return None
+        upload = Upload.objects.filter(pk=upload_id, user=self.user).first()
+        if upload is None:
+            raise forms.ValidationError(_("Загрузка файла не найдена — выберите файл ещё раз."))
+        if not upload.is_complete:
+            raise forms.ValidationError(_("Файл ещё загружается — дождитесь окончания загрузки."))
+        self.upload = upload
+        return upload_id
 
     def clean_slug(self):
         slug = self.cleaned_data.get("slug") or slugify(self.cleaned_data.get("title", "")) or uuid.uuid4().hex[:8]

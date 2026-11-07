@@ -233,6 +233,8 @@ for f in /etc/nginx/sites-enabled/*; do
 done
 ln -sf $NGINX_CONF /etc/nginx/sites-enabled/$SITE
 rm -f /etc/nginx/sites-enabled/default
+install -m 644 "$APP_DIR/deploy/nginx-techvault-files.conf" /etc/nginx/conf.d/techvault-files.conf
+nginx -t 2>/dev/null || rm -f /etc/nginx/conf.d/techvault-files.conf   # старый nginx без aio threads
 nginx -t
 systemctl reload nginx
 

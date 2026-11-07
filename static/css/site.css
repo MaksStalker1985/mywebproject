@@ -673,3 +673,18 @@ select option { background: #10132a; }
   .main-nav a { padding: 8px 10px; }
   .header-tools { gap: 8px; }
 }
+
+/* Загрузка файлов по частям */
+.upload-panel { margin-top: 10px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-strong); background: rgba(var(--accent-rgb), .05); }
+.upload-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 8px; flex-wrap: wrap; }
+.upload-name { word-break: break-all; }
+.upload-bar { height: 10px; border-radius: 99px; background: rgba(var(--accent-rgb), .12); overflow: hidden; }
+.upload-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--btn-1), var(--btn-2)); transition: width .25s linear; }
+.upload-panel[data-status="paused"] .upload-fill, .upload-panel[data-status="retry"] .upload-fill { background: var(--warn); }
+.upload-panel[data-status="done"] .upload-fill { background: var(--ok); }
+.upload-panel[data-status="done"] .upload-state { color: var(--ok); font-weight: 600; }
+.upload-panel[data-status="error"] { border-color: var(--err); }
+.upload-panel[data-status="error"] .upload-numbers { color: var(--err); }
+.upload-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; flex-wrap: wrap; color: var(--muted); }
+.upload-actions { display: inline-flex; gap: 14px; }
+@media (prefers-reduced-motion: reduce) { .upload-fill { transition: none; } }

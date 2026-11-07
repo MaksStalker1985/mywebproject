@@ -1,5 +1,5 @@
 {% extends "dashboard/base.html" %}
-{% load i18n %}
+{% load static i18n %}
 {% block title %}{% if heading %}{{ heading }}{% else %}{{ object }}{% endif %}{% endblock %}
 
 {% block dash %}
@@ -8,7 +8,8 @@
   <h1>{% if heading %}{{ heading }}{% else %}{% translate "Редактирование" %}: {{ object }}{% endif %}</h1>
   {% if object.get_absolute_url %}<a class="btn btn-ghost" href="{{ object.get_absolute_url }}">↗ {% translate "Открыть на сайте" %}</a>{% endif %}
 </div>
-<form method="post" enctype="multipart/form-data" class="card form form-grid">
+<form method="post" enctype="multipart/form-data" class="card form form-grid"
+      {% if chunked_upload %}data-chunked-upload="{% url 'dashboard:upload_create' %}"{% endif %}>
   {% csrf_token %}
   {% include "_form_fields.html" %}
   <div class="form-actions">
@@ -19,4 +20,8 @@
     {% endif %}
   </div>
 </form>
+{% if chunked_upload %}
+{{ upload_i18n|json_script:"upload-i18n" }}
+<script src="{% static 'js/chunked-upload.js' %}" defer></script>
+{% endif %}
 {% endblock %}

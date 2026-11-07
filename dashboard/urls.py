@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import uploads, views
 
 app_name = "dashboard"
 
@@ -10,6 +10,9 @@ urlpatterns = [
     path("products/new/", views.ProductCreateView.as_view(), name="product_create"),
     path("products/<int:pk>/", views.ProductUpdateView.as_view(), name="product_edit"),
     path("products/<int:pk>/delete/", views.ProductDeleteView.as_view(), name="product_delete"),
+    path("uploads/", uploads.UploadCreateView.as_view(), name="upload_create"),
+    path("uploads/<uuid:pk>/", uploads.UploadDetailView.as_view(), name="upload_detail"),
+    path("uploads/<uuid:pk>/chunk/", uploads.UploadChunkView.as_view(), name="upload_chunk"),
     path("forum/", views.CategoryListView.as_view(), name="categories"),
     path("forum/new/", views.CategoryCreateView.as_view(), name="category_create"),
     path("forum/<int:pk>/", views.CategoryUpdateView.as_view(), name="category_edit"),
