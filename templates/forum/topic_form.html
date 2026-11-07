@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% translate "Новая тема" %}{% endblock %}
+{% block title %}{% translate "Новая публикация" %}{% endblock %}
 
 {% block content %}
 <nav class="crumbs">
   <a href="{% url 'forum:index' %}">{% translate "Форум" %}</a> /
   <a href="{{ category.get_absolute_url }}">{{ category }}</a> /
+  {% if subforum %}<a href="{{ subforum.get_absolute_url }}">{{ subforum.title }}</a> /{% endif %}
 </nav>
-<h1>{% translate "Новая тема" %}</h1>
-<form method="post" class="card form">
+<h1>{% translate "Новая публикация" %}</h1>
+<form method="post" class="card form topic-form">
   {% csrf_token %}
   {% include "_form_fields.html" %}
-  <button class="btn">{% translate "Создать тему" %}</button>
+  <button class="btn">{% translate "Опубликовать" %}</button>
 </form>
 {% endblock %}

@@ -1,0 +1,35 @@
+{% load i18n avatars %}
+<article class="card post{% if post.is_first and topic.is_question %} post-question{% endif %}{% if is_solution %} post-solution{% endif %}" {% if anchor %}id="post-{{ post.pk }}"{% endif %}>
+  <aside class="post-author">
+    {% avatar post.author 64 post.author_is_team %}
+    <strong>{{ post.author.username }}</strong>
+    {% if post.author_is_team %}<span class="tag">{% translate "Команда" %}</span>{% endif %}
+    {% if post.author_id == topic.author_id and not post.is_first %}<span class="tag">{% translate "Автор" %}</span>{% endif %}
+  </aside>
+  <div class="post-body">
+    <header>
+      {% if is_solution %}<span class="kind kind-solved">✓ {% translate "Решение" %}</span>
+      {% elif post.is_first and topic.is_question %}<span class="kind kind-question">? {% translate "Вопрос" %}</span>{% endif %}
+      <span class="muted small">{{ post.created_at|date:"DATETIME_FORMAT" }}</span>
+      <span class="post-actions push-right">
+        {% if not is_solution and anchor %}
+          {% if can_mark_solution and not post.is_first %}
+            <form method="post" action="{% url 'forum:post_solution' post.pk %}" class="inline">
+              {% csrf_token %}
+              <button class="link-btn neutral">{% if topic.solution_id == post.pk %}{% translate "Снять отметку «Решение»" %}{% else %}✓ {% translate "Это решение" %}{% endif %}</button>
+            </form>
+          {% elif topic.solution_id == post.pk %}<span class="kind kind-solved">✓ {% translate "Решение" %}</span>{% endif %}
+          {% if post.author == user or can_moderate %}
+            <form method="post" action="{% url 'forum:post_delete' post.pk %}" class="inline"
+                  onsubmit="return confirm('{{ confirm_msg|escapejs }}')">
+              {% csrf_token %}<button class="link-btn">{% translate "Удалить" %}</button>
+            </form>
+          {% endif %}
+        {% elif is_solution %}
+          <a href="#post-{{ post.pk }}" class="small">{% translate "К ответу в обсуждении" %} ↓</a>
+        {% endif %}
+      </span>
+    </header>
+    <div class="prose">{{ post.body|linebreaks }}</div>
+  </div>
+</article>

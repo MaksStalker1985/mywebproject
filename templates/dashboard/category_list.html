@@ -1,23 +1,39 @@
 {% extends "dashboard/base.html" %}
 {% load i18n %}
-{% block title %}{% translate "Разделы форума" %}{% endblock %}
+{% block title %}{% translate "Структура форума" %}{% endblock %}
 
 {% block dash %}
 <div class="section-head">
-  <h1>{% translate "Разделы форума" %}</h1>
-  <a class="btn" href="{% url 'dashboard:category_create' %}">+ {% translate "Добавить раздел" %}</a>
+  <h1>{% translate "Структура форума" %}</h1>
+  <div class="head-actions">
+    <a class="btn btn-ghost" href="{% url 'dashboard:subforum_create' %}">+ {% translate "Подтема" %}</a>
+    <a class="btn" href="{% url 'dashboard:category_create' %}">+ {% translate "Главная тема" %}</a>
+  </div>
 </div>
-<div class="table dash-table cols-4">
-  <div class="row head"><span>{% translate "Раздел" %}</span><span>{% translate "Порядок" %}</span><span>{% translate "Темы" %}</span><span></span></div>
-  {% for c in object_list %}
-    <div class="row">
+<p class="muted">{% translate "Форум устроен так: главная тема → подтема → публикации (обсуждения и вопросы). Доступ групп настраивается для главной темы в разделе «Группы и доступ» и действует на все её подтемы." %}</p>
+{% for c in object_list %}
+  <div class="table dash-table cols-4 forum-structure">
+    <div class="row head">
       <span><a class="row-title" href="{% url 'dashboard:category_edit' c.pk %}">{{ c.title }}</a><small class="muted">{{ c.description }}</small></span>
-      <span>{{ c.order }}</span>
-      <span>{{ c.topic_count }}</span>
-      <span class="row-actions"><a href="{% url 'dashboard:category_edit' c.pk %}">{% translate "Изменить" %}</a></span>
+      <span>{% translate "Порядок" %}: {{ c.order }}</span>
+      <span>{% translate "Публикации" %}: {{ c.topic_count }}</span>
+      <span class="row-actions">
+        <a href="{% url 'dashboard:subforum_create' %}?category={{ c.pk }}">+ {% translate "Подтема" %}</a>
+        <a href="{% url 'dashboard:category_edit' c.pk %}">{% translate "Изменить" %}</a>
+      </span>
     </div>
-  {% empty %}
-    <p class="muted">{% translate "Разделы ещё не созданы." %}</p>
-  {% endfor %}
-</div>
+    {% for s in c.subforums.all %}
+      <div class="row">
+        <span class="subforum-cell"><span class="subforum-icon" aria-hidden="true">#</span><span><a class="row-title" href="{% url 'dashboard:subforum_edit' s.pk %}">{{ s.title }}</a><small class="muted">{{ s.description }}</small></span></span>
+        <span>{{ s.order }}</span>
+        <span>{{ s.topic_count }}</span>
+        <span class="row-actions"><a href="{{ s.get_absolute_url }}">↗</a><a href="{% url 'dashboard:subforum_edit' s.pk %}">{% translate "Изменить" %}</a></span>
+      </div>
+    {% empty %}
+      <p class="muted">{% translate "Подтем пока нет — при первой публикации будет создана «Общее обсуждение»." %}</p>
+    {% endfor %}
+  </div>
+{% empty %}
+  <p class="muted">{% translate "Главные темы ещё не созданы." %}</p>
+{% endfor %}
 {% endblock %}

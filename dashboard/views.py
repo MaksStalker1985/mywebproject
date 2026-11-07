@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Count, ProtectedError, Q, Sum
+from django.db.models import Count, Prefetch, ProtectedError, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -14,12 +14,12 @@ from django.views.generic import CreateView, DeleteView, ListView, TemplateView,
 from accounts import roles
 from catalog.models import Product
 from core.models import ContactMessage, Page
-from forum.models import Category, Topic
+from forum.models import Category, Subforum, Topic
 from payments.models import Order
 
 from accounts.models import Role
 
-from .forms import CategoryForm, PageForm, ProductForm, RoleForm
+from .forms import CategoryForm, PageForm, ProductForm, RoleForm, SubforumForm
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -116,7 +116,9 @@ class ProductDeleteView(StaffRequiredMixin, DeleteView):
 
 class CategoryListView(StaffRequiredMixin, ListView):
     template_name = "dashboard/category_list.html"
-    queryset = Category.objects.annotate(topic_count=Count("topics")).order_by("order", "title")
+    queryset = Category.objects.annotate(topic_count=Count("topics")).prefetch_related(
+        Prefetch("subforums", queryset=Subforum.objects.annotate(topic_count=Count("topics")).order_by("order", "title"))
+    ).order_by("order", "title")
 
 
 class CategoryCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
@@ -124,8 +126,8 @@ class CategoryCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = CategoryForm
     template_name = "dashboard/form.html"
     success_url = reverse_lazy("dashboard:categories")
-    success_message = gettext_lazy("Раздел «%(obj)s» создан.")
-    extra_context = {"heading": gettext_lazy("Новый раздел форума"), "back_url": reverse_lazy("dashboard:categories")}
+    success_message = gettext_lazy("Главная тема «%(obj)s» создана.")
+    extra_context = {"heading": gettext_lazy("Новая главная тема"), "back_url": reverse_lazy("dashboard:categories")}
 
 
 class CategoryUpdateView(StaffRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -133,7 +135,7 @@ class CategoryUpdateView(StaffRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = CategoryForm
     template_name = "dashboard/form.html"
     success_url = reverse_lazy("dashboard:categories")
-    success_message = gettext_lazy("Раздел «%(obj)s» сохранён.")
+    success_message = gettext_lazy("Главная тема «%(obj)s» сохранена.")
     extra_context = {"back_url": reverse_lazy("dashboard:categories"), "delete_url_name": "dashboard:category_delete"}
 
 
@@ -143,10 +145,37 @@ class CategoryDeleteView(StaffRequiredMixin, DeleteView):
     success_url = reverse_lazy("dashboard:categories")
 
 
+class SubforumCreateView(StaffRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Subforum
+    form_class = SubforumForm
+    template_name = "dashboard/form.html"
+    success_url = reverse_lazy("dashboard:categories")
+    success_message = gettext_lazy("Подтема «%(obj)s» создана.")
+    extra_context = {"heading": gettext_lazy("Новая подтема"), "back_url": reverse_lazy("dashboard:categories")}
+
+    def get_initial(self):
+        return {"category": self.request.GET.get("category")}
+
+
+class SubforumUpdateView(StaffRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Subforum
+    form_class = SubforumForm
+    template_name = "dashboard/form.html"
+    success_url = reverse_lazy("dashboard:categories")
+    success_message = gettext_lazy("Подтема «%(obj)s» сохранена.")
+    extra_context = {"back_url": reverse_lazy("dashboard:categories"), "delete_url_name": "dashboard:subforum_delete"}
+
+
+class SubforumDeleteView(StaffRequiredMixin, DeleteView):
+    model = Subforum
+    template_name = "dashboard/confirm_delete.html"
+    success_url = reverse_lazy("dashboard:categories")
+
+
 class TopicListView(StaffRequiredMixin, ListView):
     template_name = "dashboard/topic_list.html"
     paginate_by = 30
-    queryset = Topic.objects.select_related("category", "author").annotate(post_count=Count("posts")).order_by(
+    queryset = Topic.objects.select_related("category", "subforum", "author").annotate(post_count=Count("posts")).order_by(
         "-is_pinned", "-last_activity"
     )
 

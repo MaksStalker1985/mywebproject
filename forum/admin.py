@@ -1,11 +1,19 @@
 from django.contrib import admin
 
-from .models import Category, Post, Topic
+from .models import Category, Post, Subforum, Topic
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ["title", "slug", "order"]
+    list_editable = ["order"]
+    prepopulated_fields = {"slug": ["title"]}
+
+
+@admin.register(Subforum)
+class SubforumAdmin(admin.ModelAdmin):
+    list_display = ["title", "category", "slug", "order"]
+    list_filter = ["category"]
     list_editable = ["order"]
     prepopulated_fields = {"slug": ["title"]}
 
@@ -17,8 +25,9 @@ class PostInline(admin.TabularInline):
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ["title", "category", "author", "is_pinned", "is_locked", "last_activity"]
-    list_filter = ["category", "is_pinned", "is_locked"]
+    list_display = ["title", "subforum", "kind", "author", "is_pinned", "is_locked", "last_activity"]
+    list_filter = ["category", "kind", "is_pinned", "is_locked"]
+    raw_id_fields = ["solution"]
     list_editable = ["is_pinned", "is_locked"]
     search_fields = ["title"]
     inlines = [PostInline]

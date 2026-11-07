@@ -1,0 +1,1 @@
+{% load i18n %}{% if topic.is_question %}{% if topic.is_solved %}<span class="kind kind-solved">✓ {% translate "Решён" %}</span>{% else %}<span class="kind kind-question">? {% translate "Вопрос" %}</span>{% endif %}{% else %}<span class="kind kind-discussion">💬 {% translate "Обсуждение" %}</span>{% endif %}
