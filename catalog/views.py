@@ -2,12 +2,15 @@ from urllib.parse import quote
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import content_disposition_header
 from django.utils.translation import gettext as _
+
+from core.utils import client_ip
 
 from .models import Product
 
@@ -69,6 +72,23 @@ def product_detail(request, slug):
     )
 
 
+DOWNLOAD_COUNT_WINDOW = 24 * 60 * 60
+
+
+def _count_download(request, product):
+    """Увеличивает счётчик скачиваний только для настоящего нового скачивания:
+    не для HEAD-запросов, не для докачки (Range с ненулевого байта) и не чаще раза в сутки
+    для одного пользователя (или IP, если не вошёл) и продукта."""
+    if request.method != "GET":
+        return
+    byte_range = request.headers.get("Range", "")
+    if byte_range and not byte_range.replace(" ", "").startswith("bytes=0-"):
+        return
+    who = f"u{request.user.pk}" if request.user.is_authenticated else f"ip{client_ip(request)}"
+    if cache.add(f"dl:{product.pk}:{who}", 1, DOWNLOAD_COUNT_WINDOW):
+        Product.objects.filter(pk=product.pk).update(download_count=F("download_count") + 1)
+
+
 def product_download(request, slug):
     product = get_object_or_404(Product, slug=slug)
     if not product.is_visible_to(request.user):
@@ -83,7 +103,7 @@ def product_download(request, slug):
         # Продакшен: права проверены здесь, сам файл отдаёт nginx из internal-локации
         if not product.file.storage.exists(product.file.name):
             raise Http404
-        Product.objects.filter(pk=product.pk).update(download_count=F("download_count") + 1)
+        _count_download(request, product)
         response = HttpResponse(content_type="application/octet-stream")
         response["X-Accel-Redirect"] = settings.DOWNLOADS_ACCEL_PREFIX.rstrip("/") + "/" + quote(product.file.name)
         response["Content-Disposition"] = content_disposition_header(True, filename)
@@ -92,5 +112,5 @@ def product_download(request, slug):
         handle = product.file.open("rb")
     except FileNotFoundError:
         raise Http404
-    Product.objects.filter(pk=product.pk).update(download_count=F("download_count") + 1)
+    _count_download(request, product)
     return FileResponse(handle, as_attachment=True, filename=filename)

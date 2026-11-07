@@ -48,7 +48,8 @@ class PasswordResetView(auth_views.PasswordResetView):
     extra_email_context = {"site_name": "TechVault"}
 
     def form_valid(self, form):
-        ip = self.request.META.get("REMOTE_ADDR", "")
+        from core.utils import client_ip
+        ip = client_ip(self.request)
         email = form.cleaned_data["email"].strip().lower()
         ip_blocked = _hit(f"pwreset:ip:{ip}", RESET_LIMIT_PER_IP)
         email_blocked = _hit(f"pwreset:email:{email}", RESET_LIMIT_PER_EMAIL)
