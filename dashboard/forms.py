@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from accounts.models import Role
 from catalog.models import Product
 from core.models import Page
-from forum.models import Category, CategoryAccess
+from forum.models import Category, CategoryAccess, Subforum
 
 
 class ProductForm(forms.ModelForm):
@@ -17,9 +17,14 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             "kind", "title", "slug", "genre", "short_description", "description", "developer",
-            "version", "platform", "price", "cover", "file", "is_featured", "is_published", "for_testers",
+            "version", "release_stage", "platform", "price", "cover", "file", "changelog", "system_requirements",
+            "is_featured", "is_published", "for_testers",
         ]
-        widgets = {"description": forms.Textarea(attrs={"rows": 8})}
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 10}),
+            "changelog": forms.Textarea(attrs={"rows": 6}),
+            "system_requirements": forms.Textarea(attrs={"rows": 6}),
+        }
         help_texts = {"slug": _("Часть адреса страницы. Оставьте пустым — заполнится из названия.")}
 
     def __init__(self, *args, **kwargs):
@@ -40,6 +45,26 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ["title", "slug", "description", "order"]
+
+
+class SubforumForm(forms.ModelForm):
+    class Meta:
+        model = Subforum
+        fields = ["category", "title", "slug", "description", "order"]
+        help_texts = {"slug": _("Латиница, цифры и дефис; уникален внутри главной темы.")}
+
+    def clean_slug(self):
+        slug = self.cleaned_data["slug"]
+        if slug == "new":
+            raise forms.ValidationError(_("Этот адрес зарезервирован, выберите другой."))
+        return slug
+
+    def clean(self):
+        data = super().clean()
+        cat, slug = data.get("category"), data.get("slug")
+        if cat and slug and Subforum.objects.filter(category=cat, slug=slug).exclude(pk=self.instance.pk).exists():
+            self.add_error("slug", _("В этой главной теме уже есть подтема с таким адресом."))
+        return data
 
 
 class RoleForm(forms.ModelForm):

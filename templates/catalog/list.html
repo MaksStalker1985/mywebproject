@@ -17,6 +17,10 @@
     <option value="">{% translate "Все платформы" %}</option>
     {% for value, label in platforms %}<option value="{{ value }}" {% if value == platform %}selected{% endif %}>{{ label }}</option>{% endfor %}
   </select>
+  <select name="stage" aria-label="{% translate 'Стадия' %}">
+    <option value="">{% translate "Все версии" %}</option>
+    {% for value, label in stages %}<option value="{{ value }}" {% if value == stage %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
   <select name="sort">
     <option value="new" {% if sort == "new" %}selected{% endif %}>{% translate "Сначала новые" %}</option>
     <option value="popular" {% if sort == "popular" %}selected{% endif %}>{% translate "Популярные" %}</option>

@@ -1,5 +1,5 @@
 {% load i18n %}
-<a class="card product-card" href="{{ p.get_absolute_url }}">
+<a class="card product-card" href="{{ p.get_absolute_url }}" aria-label="{{ p.title }} — {% translate 'подробнее' %}">
   <div class="cover cover-{{ p.kind }}">
     {% if p.cover %}<img src="{{ p.cover.url }}" alt="{{ p.title }}" loading="lazy">{% else %}<span class="cover-letter">{{ p.title|first }}</span>{% endif %}
     <span class="badge badge-{{ p.kind }}">{{ p.get_kind_display }}</span>
@@ -7,11 +7,15 @@
   </div>
   <div class="card-body">
     <h3>{{ p.title }}</h3>
+    <div class="version-line">
+      <span class="version">v{{ p.version }}</span>
+      {% include "catalog/_stage.html" with stage=p.release_stage label=p.get_release_stage_display %}
+    </div>
     <p class="muted">{{ p.short_description }}</p>
     <div class="meta">
       <span>{{ p.get_platform_display }}</span>
-      <span>v{{ p.version }}</span>
       <span>⬇ {{ p.download_count }}</span>
+      <span class="more">{% translate "Подробнее" %} →</span>
     </div>
   </div>
 </a>

@@ -27,6 +27,10 @@ def product_list(request, kind=None):
     if platform in Product.Platform.values:
         products = products.filter(platform=platform)
 
+    stage = request.GET.get("stage", "")
+    if stage in Product.Stage.values:
+        products = products.filter(release_stage=stage)
+
     sort = request.GET.get("sort", "new")
     products = products.order_by("-download_count" if sort == "popular" else "-created_at")
 
@@ -41,6 +45,8 @@ def product_list(request, kind=None):
             "platform": platform,
             "sort": sort,
             "platforms": Product.Platform.choices,
+            "stage": stage,
+            "stages": Product.Stage.choices,
             "kinds": Product.Kind,
         },
     )
