@@ -5,6 +5,8 @@ from pathlib import Path
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -167,3 +169,36 @@ class Upload(models.Model):
     def discard(self):
         self.temp_path.unlink(missing_ok=True)
         self.delete()
+
+
+def _screenshot_path(instance, filename):
+    # Внутри covers/ — эту папку nginx уже отдаёт публично (как обложки)
+    return f"covers/screenshots/{instance.product_id}/{uuid.uuid4().hex}.webp"
+
+
+class ProductImage(models.Model):
+    """Скриншот игры или программы для галереи на странице продукта."""
+
+    product = models.ForeignKey(Product, verbose_name=_("продукт"), on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(_("изображение"), upload_to=_screenshot_path)
+    thumb = models.ImageField(_("миниатюра"), upload_to=_screenshot_path)
+    width = models.PositiveIntegerField(default=0, editable=False)
+    height = models.PositiveIntegerField(default=0, editable=False)
+    caption = models.CharField(_("подпись"), max_length=200, blank=True)
+    order = models.PositiveIntegerField(_("порядок"), default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = _("скриншот")
+        verbose_name_plural = _("скриншоты")
+
+    def __str__(self):
+        return f"{self.product} #{self.pk}"
+
+
+@receiver(post_delete, sender=ProductImage)
+def _delete_screenshot_files(sender, instance, **kwargs):
+    for f in (instance.image, instance.thumb):
+        if f:
+            f.storage.delete(f.name)

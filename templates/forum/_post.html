@@ -30,6 +30,13 @@
         {% endif %}
       </span>
     </header>
-    <div class="prose">{{ post.body|linebreaks }}</div>
+    {% if post.body %}<div class="prose">{{ post.body|linebreaks }}</div>{% endif %}
+    {% with imgs=post.images.all %}{% if imgs %}
+      <div class="post-images{% if imgs|length == 1 %} single{% endif %}">
+        {% for im in imgs %}
+          <a href="{{ im.get_absolute_url }}" data-gallery="post-{{ post.pk }}{% if is_solution %}-s{% endif %}"><img src="{% if imgs|length == 1 %}{{ im.get_absolute_url }}{% else %}{{ im.get_thumb_url }}{% endif %}" alt="{% translate 'Фото от' %} {{ post.author.username }}" loading="lazy"></a>
+        {% endfor %}
+      </div>
+    {% endif %}{% endwith %}
   </div>
 </article>

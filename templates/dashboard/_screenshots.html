@@ -1,0 +1,20 @@
+{% load i18n %}
+<section class="card screenshot-manager" id="screenshots">
+  <h2>{% translate "Скриншоты" %} · {{ screenshots|length }}</h2>
+  <p class="muted small">{% translate "Первый скриншот показывается первым в галерее на странице продукта. Новые добавляются полем «Добавить скриншоты» в форме выше." %}</p>
+  <div class="shot-grid">
+    {% for s in screenshots %}
+      <figure class="shot">
+        <a href="{{ s.image.url }}" data-gallery="admin" target="_blank"><img src="{{ s.thumb.url }}" alt="" loading="lazy"></a>
+        <figcaption>
+          <span class="muted small">{{ s.width }}×{{ s.height }}</span>
+          <span class="shot-actions">
+            {% if not forloop.first %}<form method="post" action="{% url 'dashboard:screenshot_action' s.pk 'up' %}" class="inline">{% csrf_token %}<button class="link-btn neutral" title="{% translate 'Раньше' %}">←</button></form>{% endif %}
+            {% if not forloop.last %}<form method="post" action="{% url 'dashboard:screenshot_action' s.pk 'down' %}" class="inline">{% csrf_token %}<button class="link-btn neutral" title="{% translate 'Позже' %}">→</button></form>{% endif %}
+            <form method="post" action="{% url 'dashboard:screenshot_action' s.pk 'delete' %}" class="inline">{% csrf_token %}<button class="link-btn">{% translate "Удалить" %}</button></form>
+          </span>
+        </figcaption>
+      </figure>
+    {% endfor %}
+  </div>
+</section>

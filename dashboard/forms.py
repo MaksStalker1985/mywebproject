@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Role
 from catalog.models import Product, Upload
+from core.images import MultipleImageField
 from core.models import Page
 from forum.models import Category, CategoryAccess, Subforum
 
@@ -29,6 +30,11 @@ class ProductForm(forms.ModelForm):
 
     # Файл, загруженный по частям (static/js/chunked-upload.js); заменяет поле «файл»
     upload_id = forms.UUIDField(required=False, widget=forms.HiddenInput)
+    screenshots = MultipleImageField(
+        label=_("Добавить скриншоты"), max_files=20,
+        help_text=_("Можно выбрать сразу несколько: JPG, PNG, WebP или GIF до 10 МБ каждый. "
+                    "Картинки уменьшаются до 1920 px, метаданные удаляются."),
+    )
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)

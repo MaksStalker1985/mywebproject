@@ -13,4 +13,6 @@ urlpatterns = [
     path("t/<int:pk>/", views.topic_detail, name="topic"),
     path("post/<int:pk>/solution/", views.post_solution, name="post_solution"),
     path("post/<int:pk>/delete/", views.post_delete, name="post_delete"),
+    path("img/<int:pk>/", views.post_image, name="image"),
+    path("img/<int:pk>/thumb/", views.post_image, {"thumb": True}, name="image_thumb"),
 ]

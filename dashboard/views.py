@@ -4,15 +4,15 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Count, Prefetch, ProtectedError, Q, Sum
+from django.db.models import Count, Max, Prefetch, ProtectedError, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView, View
 
 from accounts import roles
-from catalog.models import Product
+from catalog.models import Product, ProductImage
 from core.models import ContactMessage, Page
 from forum.models import Category, Subforum, Topic
 from payments.models import Order
@@ -96,13 +96,20 @@ class ProductFormMixin:
             "wait": _("Файл ещё загружается. Дождитесь окончания загрузки и нажмите «Сохранить»."),
             "b": _("Б"), "kb": _("КБ"), "mb": _("МБ"), "gb": _("ГБ"), "sec": _("с"), "min": _("мин"), "hour": _("ч"),
         }
-        return super().get_context_data(chunked_upload=True, upload_i18n=upload_i18n, **kwargs)
+        screenshots = self.object.images.all() if getattr(self, "object", None) else []
+        return super().get_context_data(chunked_upload=True, upload_i18n=upload_i18n,
+                                        screenshots=screenshots, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)
         if form.upload is not None:
             from .uploads import attach_upload
             attach_upload(form.upload, self.object)
+        if form.cleaned_data.get("screenshots"):
+            from core.images import save_image
+            start = (self.object.images.aggregate(m=Max("order"))["m"] or 0) + 1
+            for i, processed in enumerate(form.cleaned_data["screenshots"]):
+                save_image(ProductImage(product=self.object, order=start + i), processed)
         return response
 
 
@@ -122,6 +129,27 @@ class ProductUpdateView(StaffRequiredMixin, ProductFormMixin, SuccessMessageMixi
     success_url = reverse_lazy("dashboard:products")
     success_message = gettext_lazy("Изменения в «%(obj)s» сохранены.")
     extra_context = {"back_url": reverse_lazy("dashboard:products"), "delete_url_name": "dashboard:product_delete"}
+
+
+class ScreenshotActionView(StaffRequiredMixin, View):
+    """Удалить скриншот или сдвинуть его в галерее (вперёд/назад)."""
+
+    def post(self, request, pk, action):
+        shot = get_object_or_404(ProductImage, pk=pk)
+        product = shot.product
+        if action == "delete":
+            shot.delete()
+            messages.info(request, _("Скриншот удалён."))
+        elif action in {"up", "down"}:
+            shots = list(product.images.all())
+            i = shots.index(shot)
+            j = i - 1 if action == "up" else i + 1
+            if 0 <= j < len(shots):
+                shots[i], shots[j] = shots[j], shots[i]
+                for order, s in enumerate(shots):
+                    if s.order != order:
+                        ProductImage.objects.filter(pk=s.pk).update(order=order)
+        return redirect(f"{reverse('dashboard:product_edit', args=[product.pk])}#screenshots")
 
 
 class ProductDeleteView(StaffRequiredMixin, DeleteView):

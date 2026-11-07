@@ -10,6 +10,7 @@ urlpatterns = [
     path("products/new/", views.ProductCreateView.as_view(), name="product_create"),
     path("products/<int:pk>/", views.ProductUpdateView.as_view(), name="product_edit"),
     path("products/<int:pk>/delete/", views.ProductDeleteView.as_view(), name="product_delete"),
+    path("screenshots/<int:pk>/<str:action>/", views.ScreenshotActionView.as_view(), name="screenshot_action"),
     path("uploads/", uploads.UploadCreateView.as_view(), name="upload_create"),
     path("uploads/<uuid:pk>/", uploads.UploadDetailView.as_view(), name="upload_detail"),
     path("uploads/<uuid:pk>/chunk/", uploads.UploadChunkView.as_view(), name="upload_chunk"),

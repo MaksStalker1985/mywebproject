@@ -1,18 +1,43 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core.images import MultipleImageField
+
 from .models import Post, Topic
 
+MAX_POST_IMAGES = 8
+IMAGES_HELP = _("До 8 фото: JPG, PNG, WebP или GIF до 10 МБ каждое. Метаданные (в т.ч. геолокация) удаляются.")
 
-class PostForm(forms.ModelForm):
+
+def _images_field():
+    return MultipleImageField(label=_("Фото"), max_files=MAX_POST_IMAGES, help_text=IMAGES_HELP)
+
+
+class _TextOrImagesMixin:
+    """Сообщение может состоять только из фото — но хотя бы что-то должно быть."""
+
+    def clean(self):
+        data = super().clean()
+        if not (data.get("body") or "").strip() and not data.get("images") and "images" not in self.errors:
+            self.add_error("body", _("Напишите текст или прикрепите фото."))
+        return data
+
+
+class PostForm(_TextOrImagesMixin, forms.ModelForm):
+    images = _images_field()
+
     class Meta:
         model = Post
         fields = ["body"]
         labels = {"body": _("Ваш ответ")}
         widgets = {"body": forms.Textarea(attrs={"rows": 5})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["body"].required = False
 
-class TopicForm(forms.Form):
+
+class TopicForm(_TextOrImagesMixin, forms.Form):
     kind = forms.ChoiceField(
         label=_("Тип публикации"), choices=Topic.Kind.choices, initial=Topic.Kind.DISCUSSION, required=False,
         widget=forms.RadioSelect,
@@ -20,7 +45,8 @@ class TopicForm(forms.Form):
     )
     subforum = forms.ModelChoiceField(label=_("Подтема"), queryset=None, required=False, empty_label=None)
     title = forms.CharField(label=_("Заголовок"), max_length=200)
-    body = forms.CharField(label=_("Текст"), widget=forms.Textarea(attrs={"rows": 8}))
+    body = forms.CharField(label=_("Текст"), widget=forms.Textarea(attrs={"rows": 8}), required=False)
+    images = _images_field()
 
     def __init__(self, *args, category, subforum=None, **kwargs):
         super().__init__(*args, **kwargs)

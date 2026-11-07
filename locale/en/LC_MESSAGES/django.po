@@ -1780,3 +1780,78 @@ msgstr "file upload"
 
 msgid "загрузки файлов"
 msgstr "file uploads"
+
+msgid "«%(name)s» больше %(mb)s МБ."
+msgstr "“%(name)s” is larger than %(mb)s MB."
+
+msgid "«%(name)s» — не изображение. Подходят JPG, PNG, WebP и GIF."
+msgstr "“%(name)s” is not an image. JPG, PNG, WebP and GIF are supported."
+
+msgid ""
+"До 8 фото: JPG, PNG, WebP или GIF до 10 МБ каждое. Метаданные (в т.ч. "
+"геолокация) удаляются."
+msgstr ""
+"Up to 8 photos: JPG, PNG, WebP or GIF, up to 10 MB each. Metadata (including"
+" location) is removed."
+
+msgid "Добавить скриншоты"
+msgstr "Add screenshots"
+
+msgid ""
+"Можно выбрать сразу несколько: JPG, PNG, WebP или GIF до 10 МБ каждый. "
+"Картинки уменьшаются до 1920 px, метаданные удаляются."
+msgstr ""
+"You can select several at once: JPG, PNG, WebP or GIF, up to 10 MB each. "
+"Images are resized to 1920 px and metadata is removed."
+
+msgid "Можно прикрепить не больше %(n)s фото за раз."
+msgstr "You can attach at most %(n)s photos at a time."
+
+msgid "Напишите текст или прикрепите фото."
+msgstr "Write some text or attach a photo."
+
+msgid ""
+"Первый скриншот показывается первым в галерее на странице продукта. Новые "
+"добавляются полем «Добавить скриншоты» в форме выше."
+msgstr ""
+"The first screenshot is shown first in the product page gallery. Add new "
+"ones with the “Add screenshots” field in the form above."
+
+msgid "Позже"
+msgstr "Later"
+
+msgid "Раньше"
+msgstr "Earlier"
+
+msgid "Скриншот удалён."
+msgstr "Screenshot deleted."
+
+msgid "Скриншоты"
+msgstr "Screenshots"
+
+msgid "Фото"
+msgstr "Photos"
+
+msgid "Фото от"
+msgstr "Photo by"
+
+msgid "изображение"
+msgstr "image"
+
+msgid "миниатюра"
+msgstr "thumbnail"
+
+msgid "подпись"
+msgstr "caption"
+
+msgid "скриншот"
+msgstr "screenshot"
+
+msgid "скриншоты"
+msgstr "screenshots"
+
+msgid "фото в сообщении"
+msgstr "post photo"
+
+msgid "фото в сообщениях"
+msgstr "post photos"

@@ -1,6 +1,10 @@
 """Форум: главная тема → подтема → публикация (обсуждение или вопрос с ответами) → сообщения."""
+import uuid
+
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -127,6 +131,43 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.author} — {self.topic}"
+
+
+def _post_image_path(instance, filename):
+    # Не в публичной папке: картинки форума отдаются через forum:image с проверкой доступа к теме
+    return f"forum/{instance.post.topic_id}/{uuid.uuid4().hex}.webp"
+
+
+class PostImage(models.Model):
+    """Фотография, прикреплённая к сообщению на форуме."""
+
+    post = models.ForeignKey(Post, verbose_name=_("сообщение"), on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(_("изображение"), upload_to=_post_image_path)
+    thumb = models.ImageField(_("миниатюра"), upload_to=_post_image_path)
+    width = models.PositiveIntegerField(default=0, editable=False)
+    height = models.PositiveIntegerField(default=0, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        verbose_name = _("фото в сообщении")
+        verbose_name_plural = _("фото в сообщениях")
+
+    def __str__(self):
+        return f"{self.post} #{self.pk}"
+
+    def get_absolute_url(self):
+        return reverse("forum:image", args=[self.pk])
+
+    def get_thumb_url(self):
+        return reverse("forum:image_thumb", args=[self.pk])
+
+
+@receiver(post_delete, sender=PostImage)
+def _delete_post_image_files(sender, instance, **kwargs):
+    for f in (instance.image, instance.thumb):
+        if f:
+            f.storage.delete(f.name)
 
 
 class CategoryAccess(models.Model):

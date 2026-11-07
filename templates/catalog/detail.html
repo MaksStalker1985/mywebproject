@@ -5,6 +5,7 @@
 {% block og_title %}{{ product.title }} — TechVault{% endblock %}
 
 {% block content %}
+{% with shots=product.images.all %}
 <nav class="crumbs">
   <a href="{% url 'catalog:list' %}">{% translate "Каталог" %}</a> /
   <a href="{% if product.kind == 'game' %}{% url 'catalog:games' %}{% else %}{% url 'catalog:software' %}{% endif %}">{{ product.get_kind_display }}</a>
@@ -66,9 +67,24 @@
   </div>
 </article>
 
-{% if product.changelog or product.system_requirements %}
+{% if shots %}
+<section class="product-section gallery" id="screenshots" aria-label="{% translate 'Скриншоты' %}">
+  <div class="gallery-strip">
+    {% for s in shots %}
+      <a class="gallery-item" href="{{ s.image.url }}" data-gallery="product"
+         {% if s.caption %}data-caption="{{ s.caption }}"{% endif %}>
+        <img src="{{ s.thumb.url }}" alt="{% if s.caption %}{{ s.caption }}{% else %}{{ product.title }} — {% translate 'скриншот' %} {{ forloop.counter }}{% endif %}"
+             loading="lazy" width="480" height="270">
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if product.changelog or product.system_requirements or shots %}
 <nav class="tabs product-tabs">
   <a href="#description" class="active">{% translate "Описание" %}</a>
+  {% if shots %}<a href="#screenshots">{% translate "Скриншоты" %}</a>{% endif %}
   {% if product.changelog %}<a href="#changelog">{% translate "Что нового" %}</a>{% endif %}
   {% if product.system_requirements %}<a href="#requirements">{% translate "Системные требования" %}</a>{% endif %}
 </nav>
@@ -101,4 +117,5 @@
   <div class="grid">{% for p in related %}{% include "catalog/_card.html" %}{% endfor %}</div>
 </section>
 {% endif %}
+{% endwith %}
 {% endblock %}

@@ -9,7 +9,7 @@
   {% if subforum %}<a href="{{ subforum.get_absolute_url }}">{{ subforum.title }}</a> /{% endif %}
 </nav>
 <h1>{% translate "Новая публикация" %}</h1>
-<form method="post" class="card form topic-form">
+<form method="post" enctype="multipart/form-data" class="card form topic-form">
   {% csrf_token %}
   {% include "_form_fields.html" %}
   <button class="btn">{% translate "Опубликовать" %}</button>

@@ -20,6 +20,7 @@
     {% endif %}
   </div>
 </form>
+{% if screenshots %}{% include "dashboard/_screenshots.html" %}{% endif %}
 {% if chunked_upload %}
 {{ upload_i18n|json_script:"upload-i18n" }}
 <script src="{% static 'js/chunked-upload.js' %}" defer></script>

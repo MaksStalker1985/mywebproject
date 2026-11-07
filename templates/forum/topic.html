@@ -38,7 +38,7 @@
   <p class="muted">{% translate "Публикация закрыта для новых ответов." %}</p>
 {% else %}
   {% if topic.is_locked %}<p class="muted small">🔒 {% translate "Публикация закрыта, но вы можете ответить как модератор." %}</p>{% endif %}
-  <form method="post" class="card form">
+  <form method="post" enctype="multipart/form-data" class="card form">
     {% csrf_token %}
     {% include "_form_fields.html" %}
     <button class="btn">{% if topic.is_question %}{% translate "Ответить на вопрос" %}{% else %}{% translate "Ответить" %}{% endif %}</button>

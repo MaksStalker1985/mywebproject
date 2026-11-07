@@ -1,22 +1,31 @@
+from urllib.parse import quote
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Max, Prefetch, Q
-from django.http import Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from accounts import roles
+from core.images import save_image
 
 from . import access
 from .forms import PostForm, TopicForm
-from .models import Category, Post, Subforum, Topic
+from .models import Category, Post, PostImage, Subforum, Topic
 
 POSTS_PER_PAGE = 15
+
+
+def _save_post_images(post, processed_images):
+    for processed in processed_images or []:
+        save_image(PostImage(post=post), processed)
 TOPICS_PER_PAGE = 20
 
 # Структура: главная тема (Category) → подтема (Subforum) → публикация (Topic: обсуждение или вопрос)
@@ -101,14 +110,15 @@ def _create_topic(request, cat, sub=None):
     initial = {"kind": request.GET.get("kind")} if request.GET.get("kind") in Topic.Kind.values else {}
     if sub is None and request.GET.get("sub"):
         initial["subforum"] = cat.subforums.filter(slug=request.GET["sub"]).first()
-    form = TopicForm(request.POST or None, category=cat, subforum=sub, initial=initial)
+    form = TopicForm(request.POST or None, request.FILES or None, category=cat, subforum=sub, initial=initial)
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
             topic = Topic.objects.create(
                 subforum=form.get_subforum(), kind=form.cleaned_data["kind"],
                 title=form.cleaned_data["title"], author=request.user,
             )
-            Post.objects.create(topic=topic, author=request.user, body=form.cleaned_data["body"])
+            post = Post.objects.create(topic=topic, author=request.user, body=form.cleaned_data["body"])
+            _save_post_images(post, form.cleaned_data.get("images"))
         messages.success(request, _("Вопрос опубликован.") if topic.is_question else _("Публикация создана."))
         return redirect(topic)
     return render(request, "forum/topic_form.html", {"category": cat, "subforum": sub, "form": form})
@@ -138,7 +148,7 @@ def topic_detail(request, pk):
     can_moderate = roles.can_moderate(request.user)
     can_write = access.can_write(request.user, topic.category)
     can_reply = can_write and (not topic.is_locked or can_moderate)
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, request.FILES or None)
     if request.method == "POST":
         if not can_reply:
             raise PermissionDenied
@@ -147,16 +157,18 @@ def topic_detail(request, pk):
             post.topic = topic
             post.author = request.user
             post.save()
+            _save_post_images(post, form.cleaned_data.get("images"))
             Topic.objects.filter(pk=topic.pk).update(last_activity=timezone.now())
             page_num = (topic.posts.count() - 1) // POSTS_PER_PAGE + 1
             return redirect(f"{topic.get_absolute_url()}?page={page_num}#post-{post.pk}")
 
-    posts = topic.posts.select_related("author__profile")
+    posts = topic.posts.select_related("author__profile").prefetch_related("images")
     first_post = posts.first()
     page = Paginator(posts, POSTS_PER_PAGE).get_page(request.GET.get("page"))
     solution = None
     if topic.is_solved:
-        solution = Post.objects.select_related("author__profile").filter(pk=topic.solution_id).first()
+        solution = (Post.objects.select_related("author__profile").prefetch_related("images")
+                    .filter(pk=topic.solution_id).first())
         if solution:
             solution.author_is_team = roles.can_moderate(solution.author)
     for post in page:
@@ -208,3 +220,23 @@ def post_delete(request, pk):
     post.delete()
     messages.info(request, _("Сообщение удалено."))
     return redirect(topic)
+
+
+@login_required
+def post_image(request, pk, thumb=False):
+    """Фото из сообщения — только тем, кто может читать эту главную тему.
+    В продакшене файл отдаёт nginx (X-Accel-Redirect), Django лишь проверяет доступ."""
+    image = get_object_or_404(PostImage.objects.select_related("post__topic__category"), pk=pk)
+    if not access.can_read(request.user, image.post.topic.category):
+        raise Http404
+    field = image.thumb if thumb else image.image
+    if settings.DOWNLOADS_ACCEL_PREFIX:
+        response = HttpResponse(content_type="image/webp")
+        response["X-Accel-Redirect"] = settings.DOWNLOADS_ACCEL_PREFIX.rstrip("/") + "/" + quote(field.name)
+    else:
+        try:
+            response = FileResponse(field.open("rb"), content_type="image/webp")
+        except FileNotFoundError:
+            raise Http404
+    response["Cache-Control"] = "private, max-age=86400"
+    return response
