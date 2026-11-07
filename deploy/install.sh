@@ -74,6 +74,7 @@ log "Код в $APP_DIR"
 if [[ -d $APP_DIR/.git ]]; then
     if [[ -n "${REPO_URL:-}" ]]; then
         chown -R $APP_USER:www-data "$APP_DIR"
+        sudo -u $APP_USER git -C "$APP_DIR" checkout -- locale
         sudo -u $APP_USER git -C "$APP_DIR" pull --ff-only
     fi
 elif [[ -n "${REPO_URL:-}" ]]; then
@@ -157,7 +158,6 @@ EOF
 chmod 755 /usr/local/bin/techvault-manage
 
 log "Миграции и статика"
-techvault-manage compilemessages -v 0 || echo "compilemessages пропущен — используются готовые .mo"
 techvault-manage migrate --noinput
 techvault-manage collectstatic --noinput -v 0
 techvault-manage check --deploy --fail-level ERROR
