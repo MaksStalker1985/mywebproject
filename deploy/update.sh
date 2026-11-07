@@ -36,6 +36,17 @@ else
     rm -f /etc/nginx/conf.d/techvault-files.conf
 fi
 
+# Проверка конфигурации nginx: скачивание через X-Accel и закрытая папка media
+NGX=$(nginx -T 2>/dev/null || true)
+if ! grep -q "location /protected-media/" <<<"$NGX"; then
+    echo "ВНИМАНИЕ: в nginx нет location /protected-media/ — скачивание файлов не работает." >&2
+    echo "          Добавьте блоки из $APP_DIR/deploy/nginx-django-site.conf (см. DEPLOY.md)." >&2
+fi
+if grep -A3 "location /media/ {" <<<"$NGX" | grep -q "alias"; then
+    echo "ВНИМАНИЕ: location /media/ в nginx открывает всю папку media — установочные файлы" >&2
+    echo "          платных игр доступны без оплаты. Замените его блоками из deploy/nginx-django-site.conf." >&2
+fi
+
 echo "==> Перезапуск"
 sed -e "s|/var/www/django-site|$APP_DIR|g" "$APP_DIR/deploy/django-site.service" > /etc/systemd/system/$SITE.service
 install -m 644 "$APP_DIR/deploy/django-site.socket" /etc/systemd/system/$SITE.socket
