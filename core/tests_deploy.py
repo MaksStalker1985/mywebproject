@@ -27,6 +27,8 @@ class AccelDownloadTests(TestCase):
         shutil.rmtree(MEDIA, ignore_errors=True)
 
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()  # счётчик скачиваний помнит посетителя сутки
         self.free = Product.objects.create(slug="free", title="Free", short_description="s", description="d")
         self.free.file.save("free game.zip", ContentFile(b"data"))
         self.paid = Product.objects.create(slug="paid", title="Paid", short_description="s", description="d",

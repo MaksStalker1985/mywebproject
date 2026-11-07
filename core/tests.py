@@ -58,6 +58,8 @@ class SiteTests(TestCase):
         self.assertNotContains(resp, "Game One")
 
     def test_download_counts(self):
+        from django.core.cache import cache
+        cache.clear()
         resp = self.client.get(reverse("catalog:download", args=["g1"]))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(b"".join(resp.streaming_content), b"data")
