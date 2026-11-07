@@ -18,6 +18,8 @@
 #   BRANCH             — ветка (по умолчанию main)
 #   APP_DIR            — каталог проекта (по умолчанию /var/www/django-site)
 #   ADMIN_USERNAME     — логин администратора сайта (по умолчанию admin), ADMIN_EMAIL — его e-mail
+#   SMTP_USER          — адрес почтового ящика для отправки писем (если не задан — спросит);
+#                        support@DOMAIN — алиас, письма уходят от его имени
 #
 # Пароли (почтового ящика и администратора) скрипт спрашивает при запуске — не передавайте их
 # в командной строке, чтобы они не попали в историю shell.
@@ -118,8 +120,20 @@ if [[ ! -f $ENV_FILE ]]; then
     echo "Создан $ENV_FILE."
 fi
 
+# Почтовый ящик для отправки (SMTP). support@ — алиас, через него войти нельзя,
+# поэтому спрашиваем адрес настоящего ящика (или берём из SMTP_USER=...).
+if grep -q '^EMAIL_HOST_USER=$' $ENV_FILE; then
+    if [[ -z "${SMTP_USER:-}" && -t 0 ]]; then
+        echo "Письма будут уходить от support@$DOMAIN (алиас). Для входа в SMTP нужен настоящий почтовый ящик,"
+        read -rp "к которому привязан алиас, например admin@$DOMAIN (Enter — пропустить): " SMTP_USER
+    fi
+    if [[ -n "${SMTP_USER:-}" ]]; then
+        [[ "$SMTP_USER" =~ ^[^[:space:]\'\"|]+@[^[:space:]\'\"|]+$ ]] || die "некорректный адрес почтового ящика: $SMTP_USER"
+        sed -i "s|^EMAIL_HOST_USER=$|EMAIL_HOST_USER=$SMTP_USER|" $ENV_FILE
+    fi
+fi
 # Пароль почтового ящика (SMTP) — спрашиваем, если он ещё не задан
-if grep -q '^EMAIL_HOST_PASSWORD=$' $ENV_FILE && [[ -t 0 ]]; then
+if grep -q '^EMAIL_HOST_PASSWORD=$' $ENV_FILE && ! grep -q '^EMAIL_HOST_USER=$' $ENV_FILE && [[ -t 0 ]]; then
     SMTP_USER=$(sed -n 's/^EMAIL_HOST_USER=//p' $ENV_FILE)
     read -rsp "Пароль почтового ящика $SMTP_USER (Enter — пропустить): " SMTP_PASS; echo
     if [[ -n "$SMTP_PASS" ]]; then

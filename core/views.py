@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
@@ -35,13 +35,14 @@ def contact(request):
     form = ContactForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         msg = form.save()
-        send_mail(
+        # «Ответить» в почте сразу пишет посетителю
+        EmailMessage(
             subject=f"[TechVault] {msg.get_topic_display()} — {msg.name}",
-            message=f"{msg.message}\n\n{msg.name} <{msg.email}>\n{msg.product or ''}",
+            body=f"{msg.message}\n\n{msg.name} <{msg.email}>\n{msg.product or ''}",
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.CONTACT_EMAIL],
-            fail_silently=True,
-        )
+            to=[settings.CONTACT_EMAIL],
+            reply_to=[msg.email],
+        ).send(fail_silently=True)
         messages.success(request, _("Спасибо! Ваше сообщение отправлено, мы ответим в ближайшее время."))
         return redirect("core:contact")
     return render(request, "core/contact.html", {"form": form, "contact_email": settings.CONTACT_EMAIL})

@@ -141,7 +141,7 @@ LOGOUT_REDIRECT_URL = "core:home"
 
 # Письма из формы обратной связи. В разработке выводятся в консоль;
 # для продакшена задайте SMTP через переменные окружения.
-EMAIL_BACKEND = os.environ.get(
+EMAIL_DELIVERY_BACKEND = os.environ.get(
     "DJANGO_EMAIL_BACKEND", "core.mail.EmailBackend"
 )
 # SMTP: DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend и параметры ниже
@@ -155,6 +155,10 @@ EMAIL_USE_TLS = not EMAIL_USE_SSL and os.environ.get("EMAIL_USE_TLS", "1") == "1
 EMAIL_TIMEOUT = 20
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "TechVault <noreply@techvault.local>")
 SERVER_EMAIL = os.environ.get("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+# Адрес для ответов на письма сайта (алиас поддержки). EMAIL_HOST_USER — настоящий ящик для входа
+# в SMTP; алиас (support@) в нём указывать нельзя.
+EMAIL_REPLY_TO = [a.strip() for a in os.environ.get("EMAIL_REPLY_TO", "").split(",") if a.strip()]
+EMAIL_BACKEND = "core.mail.ReplyToBackend" if EMAIL_REPLY_TO else EMAIL_DELIVERY_BACKEND
 
 # Ссылка для сброса пароля действует 2 часа
 PASSWORD_RESET_TIMEOUT = 2 * 60 * 60

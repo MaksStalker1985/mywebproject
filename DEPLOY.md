@@ -56,14 +56,17 @@
    ```bash
    git clone -b deploy-ubuntu https://github.com/MaksStalker1985/mywebproject.git /tmp/techvault
    sudo DOMAIN=techvault.tech WWW=1 LETSENCRYPT_EMAIL=support@techvault.tech \
-        ADMIN_EMAIL=support@techvault.tech \
+        ADMIN_EMAIL=support@techvault.tech SMTP_USER=ваш-ящик@techvault.tech \
         REPO_URL=https://github.com/MaksStalker1985/mywebproject.git BRANCH=deploy-ubuntu \
         bash /tmp/techvault/deploy/install.sh
    ```
 
    Если репозиторий приватный — на сервере понадобится доступ к нему (deploy key или токен).
    По ходу установки скрипт спросит:
-   - **пароль почтового ящика `support@techvault.tech`** — для отправки писем через `smtp.hostinger.com:465`;
+   - **адрес и пароль настоящего почтового ящика** для отправки писем через `smtp.hostinger.com:465`.
+     `support@techvault.tech` — алиас: письма уходят от его имени и ответы приходят на него, но войти
+     в SMTP через алиас нельзя, поэтому нужен ящик, к которому он привязан (адрес можно сразу передать
+     в `SMTP_USER=`);
    - **пароль администратора сайта** (логин `admin`) — придумайте отдельный надёжный пароль,
      не совпадающий с паролем почты.
 
@@ -148,9 +151,13 @@ sudo DOMAIN=example.com LETSENCRYPT_EMAIL=you@example.com bash /var/www/django-s
    (своего почтового сервиса: Mailgun, SendGrid, Яндекс 360, Google Workspace…):
 
    ```bash
-   sudo nano /etc/techvault/techvault.env     # EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DEFAULT_FROM_EMAIL
+   sudo nano /etc/techvault/techvault.env     # EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DEFAULT_FROM_EMAIL, EMAIL_REPLY_TO
    sudo systemctl restart django-site
    ```
+
+   `EMAIL_HOST_USER` — настоящий ящик (логин SMTP), `DEFAULT_FROM_EMAIL` и `EMAIL_REPLY_TO` — адрес, от
+   имени которого уходят письма и на который отвечают (например, алиас `support@`). Проверка:
+   `sudo techvault-manage sendtestemail ваш@адрес`.
 
    Чтобы письма не попадали в спам, настройте у домена SPF, DKIM и DMARC по инструкции почтового сервиса.
 
