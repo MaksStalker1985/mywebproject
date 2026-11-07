@@ -160,7 +160,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .footer-row nav { display: flex; gap: 16px; }
 
 /* Responsive */
-@media (max-width: 1180px) {
+@media (max-width: 1279px) {
   .header-row { flex-wrap: wrap; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
   .nav-burger { display: block; margin-left: auto; width: 36px; height: 36px; cursor: pointer; position: relative; order: 2; }
   .nav-burger span, .nav-burger span::before, .nav-burger span::after { position: absolute; left: 7px; right: 7px; height: 2px; background: var(--text); content: ""; }
@@ -516,8 +516,8 @@ select option { background: #10132a; }
 /* ==========================================================================
    Логотип, переключатель темы
    ========================================================================== */
-.logo { display: inline-flex; align-items: center; }
-.logo-img { height: 42px; width: auto; }
+.logo { display: inline-flex; align-items: center; flex-shrink: 0; }
+.logo-img { height: 38px; width: auto; max-width: none; }
 [data-theme="dark"] .logo-for-light, [data-theme="light"] .logo-for-dark { display: none !important; }
 .theme-toggle {
   width: 36px; height: 36px; display: inline-grid; place-items: center; border-radius: 10px; cursor: pointer;
@@ -657,3 +657,19 @@ select option { background: #10132a; }
 [data-theme="light"] .role-blue { color: #1d4ed8; }
 [data-theme="light"] .role-purple { color: #7c3aed; }
 [data-theme="light"] .hero-emblem img { filter: drop-shadow(0 12px 24px rgba(16, 42, 72, .18)); }
+
+/* Шапка: логотип + меню + инструменты должны помещаться в одну строку */
+.site-header .container { max-width: 1320px; }
+.btn-dash-label { display: none; }
+@media (max-width: 1279px) {
+  .btn-dash-label { display: inline; }
+}
+.user-link { min-width: 0; }
+.user-name { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1279px) { .user-name { max-width: none; } }
+@media (min-width: 1280px) {
+  .header-row { gap: 16px; }
+  .main-nav { gap: 2px; }
+  .main-nav a { padding: 8px 10px; }
+  .header-tools { gap: 8px; }
+}

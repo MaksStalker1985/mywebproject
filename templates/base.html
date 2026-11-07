@@ -66,8 +66,8 @@
       </form>
 
       {% if user.is_authenticated %}
-        <a class="user-link" href="{% url 'accounts:cabinet' %}" title="{% translate 'Личный кабинет' %}">{% avatar user 30 %} {{ user.username }}{% if user_role and not user_role.is_default %} <span class="role-badge role-{{ user_role.color }}">{{ user_role_label }}</span>{% endif %}</a>
-        {% if is_site_admin %}<a class="btn btn-sm" href="{% url 'dashboard:index' %}">⚙ {% translate "Панель управления" %}</a>{% endif %}
+        <a class="user-link" href="{% url 'accounts:cabinet' %}" title="{% translate 'Личный кабинет' %}">{% avatar user 30 %} <span class="user-name">{{ user.username }}</span>{% if user_role and not user_role.is_default %} <span class="role-badge role-{{ user_role.color }}">{{ user_role_label }}</span>{% endif %}</a>
+        {% if is_site_admin %}{% translate "Панель управления" as dash_label %}<a class="btn btn-sm btn-dash" href="{% url 'dashboard:index' %}" title="{{ dash_label }}" aria-label="{{ dash_label }}">⚙<span class="btn-dash-label"> {{ dash_label }}</span></a>{% endif %}
         <form action="{% url 'accounts:logout' %}" method="post" class="inline">
           {% csrf_token %}<button class="btn btn-ghost btn-sm">{% translate "Выйти" %}</button>
         </form>
