@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ subforum.title }} · {{ category.title }}{% endblock %}
+
+{% block content %}
+<nav class="crumbs">
+  <a href="{% url 'forum:index' %}">{% translate "Форум" %}</a> /
+  <a href="{{ category.get_absolute_url }}">{{ category.title }}</a> /
+</nav>
+<div class="section-head">
+  <h1>{{ subforum.title }}</h1>
+  {% if can_write %}
+    {% url 'forum:subforum_topic_create' category.slug subforum.slug as new_url %}
+    <div class="head-actions">
+      <a class="btn btn-ghost" href="{{ new_url }}?kind=question">? {% translate "Задать вопрос" %}</a>
+      <a class="btn" href="{{ new_url }}">+ {% translate "Новая публикация" %}</a>
+    </div>
+  {% else %}<span class="tag">👁 {% translate "Только чтение" %}</span>{% endif %}
+</div>
+{% if subforum.description %}<p class="muted">{{ subforum.description }}</p>{% endif %}
+
+<nav class="tabs tabs-sm">
+  <a href="?" {% if not show %}class="active"{% endif %}>{% translate "Все" %}</a>
+  <a href="?show=discussion" {% if show == "discussion" %}class="active"{% endif %}>💬 {% translate "Обсуждения" %}</a>
+  <a href="?show=question" {% if show == "question" %}class="active"{% endif %}>? {% translate "Вопросы" %}</a>
+  <a href="?show=unsolved" {% if show == "unsolved" %}class="active"{% endif %}>{% translate "Без решения" %}</a>
+</nav>
+
+{% include "forum/_topic_rows.html" with topics=page %}
+{% include "_pagination.html" %}
+{% endblock %}

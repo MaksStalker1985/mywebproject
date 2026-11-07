@@ -1,24 +1,42 @@
 {% load static i18n avatars %}<!doctype html>
 {% get_current_language as LANG %}
-<html lang="{{ LANG }}">
+<html lang="{{ LANG }}" data-theme="dark">
 <head>
   <meta charset="utf-8">
+  <script>
+    /* Тема до отрисовки страницы: сохранённый выбор, иначе — настройка системы */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %} · TechVault</title>
   <meta name="description" content="{% block description %}{% translate "TechVault — официальный магазин игр и программ: покупка, скачивание и обновления напрямую от производителя." %}{% endblock %}">
-  <meta name="theme-color" content="#070814">
+  <meta name="theme-color" content="#070814" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#eef3f8" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="dark light">
   <meta property="og:site_name" content="TechVault">
   <meta property="og:type" content="website">
   <meta property="og:title" content="{% block og_title %}TechVault{% endblock %}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/og-image.png' %}">
   <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
-  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
 </head>
 <body>
 <header class="site-header">
   <div class="container header-row">
-    <a class="logo" href="{% url 'core:home' %}"><span class="logo-mark">▲</span> TechVault</a>
+    <a class="logo" href="{% url 'core:home' %}" aria-label="TechVault — {% translate 'Главная' %}">
+      <img class="logo-img logo-for-light" src="{% static 'img/logo-header-light.webp' %}" alt="techvault.tech" width="342" height="96">
+      <img class="logo-img logo-for-dark" src="{% static 'img/logo-header-dark.webp' %}" alt="techvault.tech" width="318" height="96">
+    </a>
 
     <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="{% translate 'Меню' %}">
     <label for="nav-toggle" class="nav-burger" aria-hidden="true"><span></span></label>
@@ -32,6 +50,11 @@
     </nav>
 
     <div class="header-tools">
+      <button type="button" class="theme-toggle" id="theme-toggle"
+              data-label-light="{% translate 'Включить светлую тему' %}" data-label-dark="{% translate 'Включить тёмную тему' %}"
+              title="{% translate 'Сменить тему' %}" aria-label="{% translate 'Сменить тему' %}">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
       <form action="{% url 'set_language' %}" method="post" class="lang-switch">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -79,5 +102,23 @@
     </nav>
   </div>
 </footer>
+<script>
+  (function () {
+    var btn = document.getElementById("theme-toggle"), root = document.documentElement;
+    function label() {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      btn.title = btn.getAttribute("data-label-" + next);
+      btn.setAttribute("aria-label", btn.title);
+    }
+    if (!btn) return;
+    label();
+    btn.addEventListener("click", function () {
+      var t = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", t);
+      try { localStorage.setItem("theme", t); } catch (e) {}
+      label();
+    });
+  })();
+</script>
 </body>
 </html>

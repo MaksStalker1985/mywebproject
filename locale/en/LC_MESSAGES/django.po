@@ -1405,3 +1405,284 @@ msgstr "draft"
 
 msgid "Отметить заказ как возвращённый? Доступ к скачиванию будет закрыт."
 msgstr "Mark the order as refunded? Download access will be revoked."
+
+msgid "Актуальная версия"
+msgstr "Current release"
+
+msgid "Альфа-тест"
+msgstr "Alpha test"
+
+msgid "Бета-тест"
+msgstr "Beta test"
+
+msgid ""
+"Альфа-версия: ранний доступ, часть возможностей ещё в разработке, возможны "
+"серьёзные ошибки и потеря сохранений."
+msgstr ""
+"Alpha version: early access, some features are still in development; serious"
+" bugs and lost saves are possible."
+
+msgid ""
+"Бета-версия: основные возможности готовы, но возможны ошибки. Сообщайте о "
+"них на форуме или через форму связи."
+msgstr ""
+"Beta version: the main features are ready, but bugs are possible. Please "
+"report them on the forum or via the contact form."
+
+msgid "Все версии"
+msgstr "All versions"
+
+msgid ""
+"Например: «- ОС: Windows 10 64-bit», «- Память: 8 ГБ». Разметка как в "
+"описании."
+msgstr ""
+"For example: “- OS: Windows 10 64-bit”, “- Memory: 8 GB”. Same markup as the"
+" description."
+
+msgid "Подробнее"
+msgstr "Details"
+
+msgid "подробнее"
+msgstr "details"
+
+msgid "Показывается в каталоге рядом с номером версии."
+msgstr "Shown in the catalog next to the version number."
+
+msgid ""
+"Пустая строка — новый абзац, «## » в начале строки — подзаголовок, «- » — "
+"пункт списка."
+msgstr ""
+"Blank line — new paragraph, “## ” at the start of a line — subheading, “- ” "
+"— list item."
+
+msgid "Системные требования"
+msgstr "System requirements"
+
+msgid "системные требования"
+msgstr "system requirements"
+
+msgid "Список изменений текущей версии. Разметка как в описании."
+msgstr "Changes in the current version. Same markup as the description."
+
+msgid "Стадия"
+msgstr "Stage"
+
+msgid "стадия"
+msgstr "stage"
+
+msgid "Что нового"
+msgstr "What's new"
+
+msgid "Что нового в версии %(version)s"
+msgstr "What's new in version %(version)s"
+
+msgid "что нового в версии"
+msgstr "what's new in this version"
+
+msgid "Без решения"
+msgstr "Unsolved"
+
+msgid "В этой главной теме уже есть подтема с таким адресом."
+msgstr "This main topic already has a subtopic with this address."
+
+msgid "В этой теме у вашей группы доступ только для чтения."
+msgstr "Your group has read-only access to this topic."
+
+msgid "Включить светлую тему"
+msgstr "Switch to light theme"
+
+msgid "Включить тёмную тему"
+msgstr "Switch to dark theme"
+
+msgid "Вопрос"
+msgstr "Question"
+
+msgid "Вопрос опубликован."
+msgstr "Your question has been posted."
+
+msgid "Вопрос — участники отвечают, а вы отмечаете ответ, который помог."
+msgstr "Question — members answer, and you mark the answer that helped."
+
+msgid "Вопросы"
+msgstr "Questions"
+
+msgid "Главная тема"
+msgstr "Main topic"
+
+msgid "Главная тема «%(obj)s» создана."
+msgstr "Main topic “%(obj)s” created."
+
+msgid "Главная тема «%(obj)s» сохранена."
+msgstr "Main topic “%(obj)s” saved."
+
+msgid ""
+"Главные темы делятся на подтемы. В подтеме можно начать обсуждение или "
+"задать вопрос — и отметить ответ, который помог."
+msgstr ""
+"Main topics are divided into subtopics. In a subtopic you can start a "
+"discussion or ask a question — and mark the answer that helped."
+
+msgid "Главные темы ещё не созданы."
+msgstr "No main topics yet."
+
+msgid ""
+"Если какой-то ответ помог — нажмите «Это решение» рядом с ним, чтобы другие "
+"сразу его увидели."
+msgstr ""
+"If an answer helped, click “This is the solution” next to it so others can "
+"see it right away."
+
+msgid "Закрыта"
+msgstr "Closed"
+
+msgid "К ответу в обсуждении"
+msgstr "Go to the answer in the thread"
+
+msgid "Латиница, цифры и дефис; уникален внутри главной темы."
+msgstr "Latin letters, digits and hyphens; unique within the main topic."
+
+msgid "Лучший ответ"
+msgstr "Best answer"
+
+msgid "Новая главная тема"
+msgstr "New main topic"
+
+msgid "Новая подтема"
+msgstr "New subtopic"
+
+msgid "Новая публикация"
+msgstr "New post"
+
+msgid "Обсуждение"
+msgstr "Discussion"
+
+msgid "Обсуждения"
+msgstr "Discussions"
+
+msgid "Общее обсуждение"
+msgstr "General discussion"
+
+msgid "Опубликовать"
+msgstr "Publish"
+
+msgid "Ответ отмечен как решение."
+msgstr "The answer is marked as the solution."
+
+msgid "Ответить на вопрос"
+msgstr "Answer the question"
+
+msgid "Отметка «Решение» снята."
+msgstr "“Solution” mark removed."
+
+msgid ""
+"Подтем пока нет — при первой публикации будет создана «Общее обсуждение»."
+msgstr ""
+"No subtopics yet — “General discussion” will be created with the first post."
+
+msgid "Подтем пока нет."
+msgstr "No subtopics yet."
+
+msgid "Подтема"
+msgstr "Subtopic"
+
+msgid "Подтема «%(obj)s» создана."
+msgstr "Subtopic “%(obj)s” created."
+
+msgid "Подтема «%(obj)s» сохранена."
+msgstr "Subtopic “%(obj)s” saved."
+
+msgid "Последнее"
+msgstr "Latest"
+
+msgid "Последние публикации"
+msgstr "Latest posts"
+
+msgid "Публикации"
+msgstr "Posts"
+
+msgid "Публикации форума"
+msgstr "Forum posts"
+
+msgid "Публикаций пока нет."
+msgstr "No posts yet."
+
+msgid "Публикаций пока нет. Станьте первым!"
+msgstr "No posts yet. Be the first!"
+
+msgid "Публикация"
+msgstr "Post"
+
+msgid "Публикация закрыта для новых ответов."
+msgstr "This post is closed to new replies."
+
+msgid "Публикация закрыта, но вы можете ответить как модератор."
+msgstr "This post is closed, but you can reply as a moderator."
+
+msgid "Публикация создана."
+msgstr "Post created."
+
+msgid "Публикация удалена."
+msgstr "Post deleted."
+
+msgid "Решение"
+msgstr "Solution"
+
+msgid "Решён"
+msgstr "Solved"
+
+msgid "Сменить тему"
+msgstr "Toggle theme"
+
+msgid "Снять отметку «Решение»"
+msgstr "Remove “Solution” mark"
+
+msgid "Структура форума"
+msgstr "Forum structure"
+
+msgid "Текст"
+msgstr "Text"
+
+msgid "Тип публикации"
+msgstr "Post type"
+
+msgid ""
+"Форум устроен так: главная тема → подтема → публикации (обсуждения и "
+"вопросы). Доступ групп настраивается для главной темы в разделе «Группы и "
+"доступ» и действует на все её подтемы."
+msgstr ""
+"The forum is organised as: main topic → subtopic → posts (discussions and "
+"questions). Group access is set per main topic in “Groups and access” and "
+"applies to all its subtopics."
+
+msgid "Это решение"
+msgstr "This is the solution"
+
+msgid "Этот адрес зарезервирован, выберите другой."
+msgstr "This address is reserved, choose another one."
+
+msgid "главная тема"
+msgstr "main topic"
+
+msgid "главные темы"
+msgstr "main topics"
+
+msgid "доступ к главной теме"
+msgstr "main topic access"
+
+msgid "доступ к главным темам"
+msgstr "main topic access"
+
+msgid "лучший ответ"
+msgstr "best answer"
+
+msgid "подтема"
+msgstr "subtopic"
+
+msgid "подтемы"
+msgstr "subtopics"
+
+msgid "публикации"
+msgstr "posts"
+
+msgid "публикация"
+msgstr "post"

@@ -33,14 +33,35 @@ class Product(models.Model):
         MACOS = "macos", "macOS"
         CROSS = "cross", _("Кроссплатформенная")
 
+    class Stage(models.TextChoices):
+        """Стадия выпуска текущей версии."""
+        RELEASE = "release", _("Актуальная версия")
+        BETA = "beta", _("Бета-тест")
+        ALPHA = "alpha", _("Альфа-тест")
+
     kind = models.CharField(_("тип"), max_length=10, choices=Kind.choices, default=Kind.GAME)
     title = models.CharField(_("название"), max_length=150)
     slug = models.SlugField(_("адрес"), max_length=160, unique=True)
     genre = models.CharField(_("жанр / категория"), max_length=60, blank=True)
     short_description = models.CharField(_("кратко"), max_length=255)
-    description = models.TextField(_("описание"))
+    description = models.TextField(
+        _("описание"),
+        help_text=_("Пустая строка — новый абзац, «## » в начале строки — подзаголовок, «- » — пункт списка."),
+    )
     developer = models.CharField(_("разработчик"), max_length=100, blank=True)
     version = models.CharField(_("версия"), max_length=30, default="1.0")
+    release_stage = models.CharField(
+        _("стадия"), max_length=10, choices=Stage.choices, default=Stage.RELEASE,
+        help_text=_("Показывается в каталоге рядом с номером версии."),
+    )
+    changelog = models.TextField(
+        _("что нового в версии"), blank=True,
+        help_text=_("Список изменений текущей версии. Разметка как в описании."),
+    )
+    system_requirements = models.TextField(
+        _("системные требования"), blank=True,
+        help_text=_("Например: «- ОС: Windows 10 64-bit», «- Память: 8 ГБ». Разметка как в описании."),
+    )
     platform = models.CharField(_("платформа"), max_length=10, choices=Platform.choices, default=Platform.WINDOWS)
     cover = models.ImageField(_("обложка"), upload_to="covers/", blank=True)
     file = models.FileField(_("файл"), upload_to="downloads/", blank=True)

@@ -6,29 +6,17 @@
 <nav class="crumbs"><a href="{% url 'forum:index' %}">{% translate "Форум" %}</a> /</nav>
 <div class="section-head">
   <h1>{{ category.title }}</h1>
-  {% if can_write %}<a class="btn" href="{% url 'forum:topic_create' category.slug %}">+ {% translate "Новая тема" %}</a>
+  {% if can_write %}<a class="btn" href="{% url 'forum:topic_create' category.slug %}">+ {% translate "Новая публикация" %}</a>
   {% else %}<span class="tag">👁 {% translate "Только чтение" %}</span>{% endif %}
 </div>
-<p class="muted">{{ category.description }}</p>
+{% if category.description %}<p class="muted">{{ category.description }}</p>{% endif %}
 
-<div class="table forum-table">
-  <div class="row head">
-    <span>{% translate "Тема" %}</span><span>{% translate "Автор" %}</span><span>{% translate "Ответы" %}</span><span>{% translate "Активность" %}</span>
-  </div>
-  {% for t in page %}
-    <div class="row">
-      <span>
-        {% if t.is_pinned %}<span class="tag">📌 {% translate "Закреплено" %}</span>{% endif %}
-        {% if t.is_locked %}<span class="tag">🔒</span>{% endif %}
-        <a class="row-title" href="{{ t.get_absolute_url }}">{{ t.title }}</a>
-      </span>
-      <span class="author-cell">{% avatar t.author 26 %} {{ t.author }}</span>
-      <span>{{ t.reply_count|add:"-1" }}</span>
-      <span class="muted">{{ t.last_activity|timesince }}</span>
-    </div>
-  {% empty %}
-    <p class="muted">{% translate "В этом разделе пока нет тем. Станьте первым!" %}</p>
-  {% endfor %}
-</div>
-{% include "_pagination.html" %}
+{% include "forum/_subforum_rows.html" with subforums=subforums %}
+
+{% if recent %}
+<section>
+  <h2>{% translate "Последние публикации" %}</h2>
+  {% include "forum/_topic_rows.html" with topics=recent show_subforum=True %}
+</section>
+{% endif %}
 {% endblock %}

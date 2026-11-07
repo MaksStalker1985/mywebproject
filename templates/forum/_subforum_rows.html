@@ -1,0 +1,24 @@
+{% load i18n avatars %}
+<div class="table forum-table">
+  <div class="row head">
+    <span>{% translate "Подтема" %}</span><span>{% translate "Публикации" %}</span><span>{% translate "Сообщения" %}</span><span>{% translate "Последнее" %}</span>
+  </div>
+  {% for s in subforums %}
+    <div class="row">
+      <span class="subforum-cell">
+        <span class="subforum-icon" aria-hidden="true">#</span>
+        <span><a class="row-title" href="{{ s.get_absolute_url }}">{{ s.title }}</a>{% if s.description %}<small class="muted">{{ s.description }}</small>{% endif %}</span>
+      </span>
+      <span>{{ s.topic_count }}</span>
+      <span>{{ s.post_count }}</span>
+      <span class="last-cell">
+        {% if s.last_topic %}
+          <a href="{{ s.last_topic.get_absolute_url }}" class="last-link">{{ s.last_topic.title|truncatechars:38 }}</a>
+          <small class="muted">{{ s.last_topic.last_activity|timesince }}</small>
+        {% else %}<span class="muted">—</span>{% endif %}
+      </span>
+    </div>
+  {% empty %}
+    <p class="muted">{% translate "Подтем пока нет." %}</p>
+  {% endfor %}
+</div>

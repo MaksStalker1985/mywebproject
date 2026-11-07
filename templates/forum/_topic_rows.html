@@ -1,0 +1,24 @@
+{% load i18n avatars %}
+<div class="table forum-table">
+  <div class="row head">
+    <span>{% translate "Публикация" %}</span><span>{% translate "Автор" %}</span><span>{% translate "Ответы" %}</span><span>{% translate "Активность" %}</span>
+  </div>
+  {% for t in topics %}
+    <div class="row">
+      <span>
+        <span class="topic-badges">
+          {% if t.is_pinned %}<span class="tag">📌 {% translate "Закреплено" %}</span>{% endif %}
+          {% if t.is_locked %}<span class="tag">🔒</span>{% endif %}
+          {% include "forum/_kind.html" with topic=t %}
+          {% if show_subforum %}<span class="muted small">{{ t.subforum.title }}</span>{% endif %}
+        </span>
+        <a class="row-title" href="{{ t.get_absolute_url }}">{{ t.title }}</a>
+      </span>
+      <span class="author-cell">{% avatar t.author 26 %} {{ t.author }}</span>
+      <span>{{ t.reply_count|add:"-1" }}</span>
+      <span class="muted">{{ t.last_activity|timesince }}</span>
+    </div>
+  {% empty %}
+    <p class="muted">{{ empty_text|default:_("Публикаций пока нет. Станьте первым!") }}</p>
+  {% endfor %}
+</div>

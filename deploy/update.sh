@@ -12,6 +12,9 @@ SITE=django-site
 chown -R techvault:www-data "$APP_DIR"
 if [[ "${NO_PULL:-0}" != "1" && -d $APP_DIR/.git ]]; then
     echo "==> git pull"
+    # Готовые .mo лежат в репозитории; старые версии скрипта пересобирали их на сервере,
+    # из-за чего git pull отказывался обновлять. Возвращаем их к версии из git.
+    sudo -u techvault git -C "$APP_DIR" checkout -- locale
     sudo -u techvault git -C "$APP_DIR" pull --ff-only
 fi
 chmod -R g+rX,o-rwx "$APP_DIR"
@@ -20,7 +23,6 @@ echo "==> Зависимости"
 sudo -u techvault "$VENV/bin/pip" install -q -r "$APP_DIR/requirements-prod.txt"
 
 echo "==> Миграции и статика"
-techvault-manage compilemessages -v 0 || true
 techvault-manage migrate --noinput
 techvault-manage collectstatic --noinput -v 0
 techvault-manage check --deploy --fail-level ERROR

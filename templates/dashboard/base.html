@@ -7,8 +7,8 @@
     <h3>{% translate "Панель управления" %}</h3>
     <a href="{{ d_index }}" {% if request.path == d_index %}class="active"{% endif %}>📊 {% translate "Обзор" %}</a>
     <a href="{{ d_products }}" {% if d_products in request.path %}class="active"{% endif %}>🎮 {% translate "Игры и ПО" %}</a>
-    <a href="{{ d_categories }}" {% if d_categories in request.path %}class="active"{% endif %}>🗂 {% translate "Разделы форума" %}</a>
-    <a href="{{ d_topics }}" {% if d_topics in request.path %}class="active"{% endif %}>💬 {% translate "Темы форума" %}</a>
+    <a href="{{ d_categories }}" {% if d_categories in request.path %}class="active"{% endif %}>🗂 {% translate "Структура форума" %}</a>
+    <a href="{{ d_topics }}" {% if d_topics in request.path %}class="active"{% endif %}>💬 {% translate "Публикации форума" %}</a>
     <a href="{{ d_messages }}" {% if d_messages in request.path %}class="active"{% endif %}>✉ {% translate "Обращения" %}</a>
     <a href="{{ d_orders }}" {% if d_orders in request.path %}class="active"{% endif %}>💳 {% translate "Заказы" %}</a>
     <a href="{{ d_users }}" {% if d_users in request.path %}class="active"{% endif %}>👥 {% translate "Пользователи" %}</a>

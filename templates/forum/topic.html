@@ -1,50 +1,47 @@
 {% extends "base.html" %}
-{% load i18n avatars %}
+{% load i18n %}
 {% block title %}{{ topic.title }}{% endblock %}
 
 {% block content %}
 <nav class="crumbs">
   <a href="{% url 'forum:index' %}">{% translate "Форум" %}</a> /
   <a href="{{ topic.category.get_absolute_url }}">{{ topic.category }}</a> /
+  <a href="{{ topic.subforum.get_absolute_url }}">{{ topic.subforum.title }}</a> /
 </nav>
-<h1>{% if topic.is_locked %}🔒 {% endif %}{{ topic.title }}</h1>
+<div class="topic-head">
+  <div class="topic-badges">{% include "forum/_kind.html" %}{% if topic.is_locked %}<span class="tag">🔒 {% translate "Закрыта" %}</span>{% endif %}</div>
+  <h1>{{ topic.title }}</h1>
+</div>
 
 {% translate "Удалить сообщение?" as confirm_msg %}
 <div class="posts">
   {% for post in page %}
-    <article class="card post" id="post-{{ post.pk }}">
-      <aside class="post-author">
-        {% avatar post.author 64 post.author_is_team %}
-        <strong>{{ post.author.username }}</strong>
-        {% if post.author_is_team %}<span class="tag">{% translate "Команда" %}</span>{% endif %}
-      </aside>
-      <div class="post-body">
-      <header>
-        <span class="muted small">{{ post.created_at|date:"DATETIME_FORMAT" }}</span>
-        {% if post.author == user or can_moderate %}
-          <form method="post" action="{% url 'forum:post_delete' post.pk %}" class="inline push-right"
-                onsubmit="return confirm('{{ confirm_msg|escapejs }}')">
-            {% csrf_token %}<button class="link-btn">{% translate "Удалить" %}</button>
-          </form>
-        {% endif %}
-      </header>
-      <div class="prose">{{ post.body|linebreaks }}</div>
-      </div>
-    </article>
+    {% include "forum/_post.html" with anchor=True %}
+    {% if post.is_first %}
+      {% if solution %}
+        <h2 class="posts-divider">✓ {% translate "Лучший ответ" %}</h2>
+        {% include "forum/_post.html" with post=solution is_solution=True anchor=False %}
+      {% elif topic.is_question and can_mark_solution and reply_count %}
+        <p class="muted small solution-hint">{% translate "Если какой-то ответ помог — нажмите «Это решение» рядом с ним, чтобы другие сразу его увидели." %}</p>
+      {% endif %}
+      {% if reply_count %}
+        <h2 class="posts-divider">{% if topic.is_question %}{% translate "Ответы" %}{% else %}{% translate "Обсуждение" %}{% endif %} · {{ reply_count }}</h2>
+      {% endif %}
+    {% endif %}
   {% endfor %}
 </div>
 {% include "_pagination.html" %}
 
 {% if not can_write %}
-  <p class="muted">👁 {% translate "В этом разделе у вашей группы доступ только для чтения." %}</p>
+  <p class="muted">👁 {% translate "В этой теме у вашей группы доступ только для чтения." %}</p>
 {% elif not can_reply %}
-  <p class="muted">{% translate "Тема закрыта для новых ответов." %}</p>
+  <p class="muted">{% translate "Публикация закрыта для новых ответов." %}</p>
 {% else %}
-  {% if topic.is_locked %}<p class="muted small">🔒 {% translate "Тема закрыта, но вы можете ответить как модератор." %}</p>{% endif %}
+  {% if topic.is_locked %}<p class="muted small">🔒 {% translate "Публикация закрыта, но вы можете ответить как модератор." %}</p>{% endif %}
   <form method="post" class="card form">
     {% csrf_token %}
     {% include "_form_fields.html" %}
-    <button class="btn">{% translate "Ответить" %}</button>
+    <button class="btn">{% if topic.is_question %}{% translate "Ответить на вопрос" %}{% else %}{% translate "Ответить" %}{% endif %}</button>
   </form>
 {% endif %}
 {% endblock %}

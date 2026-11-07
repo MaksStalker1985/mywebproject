@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n avatars %}
+{% load static i18n avatars %}
 {% block title %}{% translate "Главная" %}{% endblock %}
 
 {% block content %}
@@ -13,10 +13,16 @@
       <a class="btn btn-lg btn-ghost" href="{% url 'catalog:software' %}">{% translate "Программы" %}</a>
     </div>
   </div>
+  <div class="hero-side">
+  <div class="hero-emblem" aria-hidden="true">
+    <img class="logo-for-light" src="{% static 'img/emblem-light.webp' %}" alt="" width="231" height="256">
+    <img class="logo-for-dark" src="{% static 'img/emblem-dark.webp' %}" alt="" width="286" height="256">
+  </div>
   <div class="stats">
     <div class="stat"><strong>{{ games_count }}</strong><span>{% translate "игр" %}</span></div>
     <div class="stat"><strong>{{ software_count }}</strong><span>{% translate "программ" %}</span></div>
     <div class="stat"><strong>3</strong><span>{% translate "языка интерфейса" %}</span></div>
+  </div>
   </div>
 </section>
 

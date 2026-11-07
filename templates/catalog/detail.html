@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n markup %}
 {% block title %}{{ product.title }}{% endblock %}
 {% block description %}{{ product.short_description }}{% endblock %}
 {% block og_title %}{{ product.title }} — TechVault{% endblock %}
@@ -18,11 +18,20 @@
     <h1>{{ product.title }}</h1>
     {% if product.is_test_build %}<p><span class="tag tag-warn">🧪 {% translate "Тестовая сборка — видна только тестерам и администраторам" %}</span></p>
     {% elif not product.is_published %}<p><span class="tag tag-warn">{% translate "Не опубликовано" %}</span></p>{% endif %}
+    <div class="version-line version-line-lg">
+      <span class="version">{% translate "Версия" %} {{ product.version }}</span>
+      {% include "catalog/_stage.html" with stage=product.release_stage label=product.get_release_stage_display %}
+    </div>
     <p class="lead">{{ product.short_description }}</p>
+    {% if product.release_stage == "beta" %}
+      <p class="stage-note stage-note-beta">β {% translate "Бета-версия: основные возможности готовы, но возможны ошибки. Сообщайте о них на форуме или через форму связи." %}</p>
+    {% elif product.release_stage == "alpha" %}
+      <p class="stage-note stage-note-alpha">α {% translate "Альфа-версия: ранний доступ, часть возможностей ещё в разработке, возможны серьёзные ошибки и потеря сохранений." %}</p>
+    {% endif %}
     <dl class="specs">
       <dt>{% translate "Тип" %}</dt><dd>{{ product.get_kind_display }}{% if product.genre %} · {{ product.genre }}{% endif %}</dd>
       <dt>{% translate "Разработчик" %}</dt><dd>{{ product.developer|default:"—" }}</dd>
-      <dt>{% translate "Версия" %}</dt><dd>{{ product.version }}</dd>
+      <dt>{% translate "Версия" %}</dt><dd>{{ product.version }} · {{ product.get_release_stage_display }}</dd>
       <dt>{% translate "Платформа" %}</dt><dd>{{ product.get_platform_display }}</dd>
       {% if product.file_size %}<dt>{% translate "Размер" %}</dt><dd>{{ product.file_size|filesizeformat }}</dd>{% endif %}
       <dt>{% translate "Обновлено" %}</dt><dd>{{ product.updated_at|date:"DATE_FORMAT" }}</dd>
@@ -57,10 +66,34 @@
   </div>
 </article>
 
-<section class="card prose">
+{% if product.changelog or product.system_requirements %}
+<nav class="tabs product-tabs">
+  <a href="#description" class="active">{% translate "Описание" %}</a>
+  {% if product.changelog %}<a href="#changelog">{% translate "Что нового" %}</a>{% endif %}
+  {% if product.system_requirements %}<a href="#requirements">{% translate "Системные требования" %}</a>{% endif %}
+</nav>
+{% endif %}
+
+<section class="card prose product-section" id="description">
   <h2>{% translate "Описание" %}</h2>
-  {{ product.description|linebreaks }}
+  {{ product.description|simple_markup }}
 </section>
+
+{% if product.changelog %}
+<section class="card prose product-section" id="changelog">
+  <h2>{% blocktranslate with version=product.version %}Что нового в версии {{ version }}{% endblocktranslate %}
+    {% include "catalog/_stage.html" with stage=product.release_stage label=product.get_release_stage_display %}</h2>
+  {{ product.changelog|simple_markup }}
+</section>
+{% endif %}
+
+{% if product.system_requirements %}
+<section class="card prose product-section" id="requirements">
+  <h2>{% translate "Системные требования" %}</h2>
+  <p class="muted small">{% translate "Платформа" %}: {{ product.get_platform_display }}</p>
+  {{ product.system_requirements|simple_markup }}
+</section>
+{% endif %}
 
 {% if related %}
 <section>
