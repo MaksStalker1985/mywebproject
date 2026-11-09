@@ -1855,3 +1855,38 @@ msgstr "post photo"
 
 msgid "фото в сообщениях"
 msgstr "post photos"
+
+msgid "ID возврата"
+msgstr "Refund ID"
+
+msgid "возврат оформлен"
+msgstr "refunded at"
+
+msgid ""
+"Возврат по заказу #%(pk)s отправлен в платёжную систему (%(id)s). Деньги "
+"вернутся покупателю, доступ к скачиванию закрыт."
+msgstr ""
+"Refund for order #%(pk)s sent to the payment provider (%(id)s). The buyer "
+"will get the money back; download access is closed."
+
+msgid "Платёжная система не приняла возврат по заказу #%(pk)s: %(err)s"
+msgstr ""
+"The payment provider did not accept the refund for order #%(pk)s: %(err)s"
+
+msgid ""
+"Вернуть покупателю деньги за этот заказ? Возврат будет отправлен в платёжную"
+" систему, доступ к скачиванию закроется."
+msgstr ""
+"Refund the buyer for this order? The refund will be sent to the payment "
+"provider and download access will be closed."
+
+msgid ""
+"Покупая, вы соглашаетесь с <a href=\"%(terms_url)s\">условиями "
+"использования</a>. Вернуть деньги можно в течение 14 дней, если игра или "
+"программа ещё не скачана, — подробнее в <a href=\"%(refunds_url)s\">правилах"
+" возврата</a>."
+msgstr ""
+"By purchasing, you agree to the <a href=\"%(terms_url)s\">Terms of "
+"Service</a>. You can get a refund within 14 days if the game or software has"
+" not been downloaded yet — see the <a href=\"%(refunds_url)s\">Refund "
+"Policy</a>."

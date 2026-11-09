@@ -62,7 +62,7 @@
     </div>
     {% if not product.is_free and not has_access %}
       {% url 'core:page' 'terms' as terms_url %}{% url 'core:page' 'refunds' as refunds_url %}
-      <p class="muted small buy-note">{% blocktranslate %}Покупая, вы соглашаетесь с <a href="{{ terms_url }}">условиями использования</a>. Возврат — в течение 14 дней, см. <a href="{{ refunds_url }}">правила возврата</a>.{% endblocktranslate %}</p>
+      <p class="muted small buy-note">{% blocktranslate %}Покупая, вы соглашаетесь с <a href="{{ terms_url }}">условиями использования</a>. Вернуть деньги можно в течение 14 дней, если игра или программа ещё не скачана, — подробнее в <a href="{{ refunds_url }}">правилах возврата</a>.{% endblocktranslate %}</p>
     {% endif %}
   </div>
 </article>

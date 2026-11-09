@@ -1,4 +1,6 @@
 """Панель управления контентом для группы «Администраторы»."""
+import logging
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -20,6 +22,9 @@ from payments.models import Order
 from accounts.models import Role
 
 from .forms import CategoryForm, PageForm, ProductForm, RoleForm, SubforumForm
+
+
+log = logging.getLogger(__name__)
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -420,15 +425,24 @@ class PageDeleteView(StaffRequiredMixin, DeleteView):
 
 
 class OrderRefundView(StaffRequiredMixin, View):
-    """Отметить оплаченный заказ как возвращённый — доступ к скачиванию закрывается.
-    Сами деньги возвращаются в кабинете Paddle/Stripe."""
+    """Возврат денег за оплаченный заказ через API платёжной системы (Paddle/Stripe).
+    Доступ к скачиванию закрывается сразу; если платёжная система отклонит возврат, webhook вернёт доступ."""
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
         if order.status == Order.Status.PAID:
-            Order.objects.filter(pk=pk, status=Order.Status.PAID).update(status=Order.Status.REFUNDED)
-            messages.success(request, _("Заказ #%(pk)s отмечен как возвращённый. Не забудьте вернуть деньги "
-                                        "в кабинете платёжной системы.") % {"pk": pk})
+            from payments.providers import get_provider
+            try:
+                refund_id = get_provider(order.provider).refund(order, reason=request.POST.get("reason", ""))
+            except Exception as exc:
+                log.exception("Возврат по заказу %s не прошёл", pk)
+                messages.error(request, _("Платёжная система не приняла возврат по заказу #%(pk)s: %(err)s") % {
+                    "pk": pk, "err": getattr(exc, "detail", None) or exc})
+            else:
+                order.mark_refunded(refund_id)
+                messages.success(request, _("Возврат по заказу #%(pk)s отправлен в платёжную систему (%(id)s). "
+                                            "Деньги вернутся покупателю, доступ к скачиванию закрыт.") % {
+                    "pk": pk, "id": refund_id})
         return redirect(request.POST.get("next") or "dashboard:orders")
 
 

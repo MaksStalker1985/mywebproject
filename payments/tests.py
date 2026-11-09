@@ -208,3 +208,99 @@ class PaddleTests(TestCase):
             self.client.get(reverse("payments:result", args=[self.order.pk]))
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, "paid")
+
+    # --- Возвраты и чарджбэки ---
+    def _paid(self):
+        self.order.mark_paid("txn_1")
+        return self.order
+
+    def _admin(self):
+        from accounts import roles
+        admin = User.objects.create_user("boss", "boss@example.com", "S3cure-pass!")
+        roles.set_role(admin, roles.ADMINS)
+        self.client.force_login(admin)
+
+    def test_dashboard_refund_goes_to_paddle(self):
+        self._paid()
+        self._admin()
+        with mock.patch("payments.providers.PaddleProvider._api", return_value={"id": "adj_1"}) as api:
+            self.client.post(reverse("dashboard:order_refund", args=[self.order.pk]))
+        method, path, payload = api.call_args.args
+        self.assertEqual((method, path), ("POST", "/adjustments"))
+        self.assertEqual((payload["action"], payload["type"], payload["transaction_id"]), ("refund", "full", "txn_1"))
+        self.order.refresh_from_db()
+        self.assertEqual((self.order.status, self.order.refund_id), ("refunded", "adj_1"))
+        self.assertFalse(self.product.is_available_to(self.user))
+
+    def test_dashboard_refund_error_keeps_order_paid(self):
+        from payments.providers import PaddleError
+        self._paid()
+        self._admin()
+        err = PaddleError(400, "transaction_not_refundable", "Transaction cannot be refunded")
+        with mock.patch("payments.providers.PaddleProvider._api", side_effect=err):
+            resp = self.client.post(reverse("dashboard:order_refund", args=[self.order.pk]), follow=True)
+        self.assertContains(resp, "Transaction cannot be refunded")
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+
+    def _adj(self, **kw):
+        data = {"id": "adj_9", "action": "refund", "type": "full", "status": "approved", "transaction_id": "txn_1"}
+        data.update(kw)
+        return {"event_type": "adjustment.updated", "data": data}
+
+    def test_refund_made_in_paddle_closes_access(self):
+        self._paid()
+        self._post(self._adj(status="pending_approval"))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+        self._post(self._adj())
+        self.order.refresh_from_db()
+        self.assertEqual((self.order.status, self.order.refund_id), ("refunded", "adj_9"))
+
+    def test_partial_refund_keeps_access_and_chargeback_flow(self):
+        self._paid()
+        self._post(self._adj(type="partial"))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+        self._post(self._adj(id="adj_cb", action="chargeback"))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "refunded")
+        self._post(self._adj(id="adj_cbr", action="chargeback_reverse"))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+
+    def test_rejected_refund_restores_access(self):
+        self._paid()
+        self.order.mark_refunded("adj_9")
+        self._post(self._adj(status="rejected"))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "paid")
+
+    def test_config_problems(self):
+        from payments.providers import paddle_config_problems
+        with override_settings(PADDLE_API_KEY="pdl_live_apikey_x", PADDLE_CLIENT_TOKEN="test_x",
+                               PADDLE_WEBHOOK_SECRET="", PADDLE_SANDBOX=True):
+            problems = " ".join(paddle_config_problems())
+        self.assertIn("боевой ключ", problems)
+        self.assertIn("PADDLE_WEBHOOK_SECRET", problems)
+        with override_settings(PADDLE_API_KEY="pdl_sdbx_apikey_x", PADDLE_CLIENT_TOKEN="test_x", PADDLE_SANDBOX=True):
+            self.assertEqual(paddle_config_problems(), [])
+
+    def test_paddle_command(self):
+        from io import StringIO
+        from django.core.management import call_command
+        dest = {"id": "ntfset_1", "destination": "https://techvault.tech/payments/webhook/paddle/", "active": True,
+                "subscribed_events": [{"name": "transaction.completed"}]}
+        out = StringIO()
+        with mock.patch("payments.providers.PaddleProvider._api", return_value=[dest]):
+            call_command("paddle", "check", stdout=out)
+        self.assertIn("API-ключ действует", out.getvalue())
+        self.assertIn("adjustment.updated", out.getvalue())  # не включённое событие
+        out = StringIO()
+        with mock.patch("payments.providers.PaddleProvider._api",
+                        side_effect=[[], {"id": "ntfset_2", "endpoint_secret_key": "pdl_ntfset_secret"}]) as api:
+            call_command("paddle", "setup-webhook", "https://shop.example", stdout=out)
+        payload = api.call_args.args[2]
+        self.assertEqual(payload["destination"], "https://shop.example/payments/webhook/paddle/")
+        self.assertIn("adjustment.updated", payload["subscribed_events"])
+        self.assertIn("PADDLE_WEBHOOK_SECRET=pdl_ntfset_secret", out.getvalue())

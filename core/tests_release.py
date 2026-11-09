@@ -103,7 +103,28 @@ class RefundTests(TestCase):
         admin = User.objects.create_user("boss", "b@example.com", "S3cure-pass!")
         roles.set_role(admin, roles.ADMINS)
         self.client.force_login(admin)
-        self.client.post(url)
+        from unittest import mock
+        with mock.patch("payments.providers.PaddleProvider.refund", return_value="adj_1"),                 mock.patch("payments.providers.PaddleProvider.__init__", return_value=None):
+            self.client.post(url)
         order.refresh_from_db()
-        self.assertEqual(order.status, Order.Status.REFUNDED)
+        self.assertEqual((order.status, order.refund_id), (Order.Status.REFUNDED, "adj_1"))
         self.assertFalse(product.is_available_to(buyer))
+
+
+class OwnerLegalDocumentsTests(TestCase):
+    def test_owner_documents_in_three_languages(self):
+        for lang, title, marker in [("en", "Privacy Policy", "Data Controller"),
+                                    ("ru", "Политика конфиденциальности", "Контролёр данных"),
+                                    ("uk", "Політика конфіденційності", "Контролер даних")]:
+            page = self.client.get(f"/{lang}/p/privacy/")
+            self.assertContains(page, f"<h1>{title}</h1>", html=False)
+            self.assertContains(page, marker)
+            self.assertContains(page, "office@techvault.tech")
+            self.assertNotContains(page, "[Insert")
+        self.assertContains(self.client.get("/uk/p/refunds/"), "refund@techvault.tech")
+        self.assertContains(self.client.get("/en/p/terms/"), "Governing Law")
+
+    def test_short_addresses_follow_visitor_language(self):
+        self.assertRedirects(self.client.get("/refund-policy", HTTP_ACCEPT_LANGUAGE="uk"), "/uk/p/refunds/")
+        self.assertRedirects(self.client.get("/privacy-policy/", HTTP_ACCEPT_LANGUAGE="en"), "/en/p/privacy/")
+        self.assertRedirects(self.client.get("/terms-of-service", HTTP_ACCEPT_LANGUAGE="ru"), "/ru/p/terms/")

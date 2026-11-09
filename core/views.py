@@ -62,6 +62,20 @@ def page(request, slug):
     return render(request, "core/page.html", {"page": obj})
 
 
+# Короткие адреса юридических страниц (на них ссылаются тексты условий и платёжные системы).
+# Ведут на страницу на языке посетителя: /ru/p/terms/, /en/p/terms/ …
+LEGAL_SHORTCUTS = {"terms-of-service": "terms", "privacy-policy": "privacy", "refund-policy": "refunds"}
+
+
+def legal_shortcut(request, shortcut):
+    from django.urls import reverse
+    from django.utils import translation
+
+    lang = translation.get_language_from_request(request)
+    with translation.override(lang):
+        return redirect(reverse("core:page", args=[LEGAL_SHORTCUTS[shortcut]]))
+
+
 @cache_page(60 * 60)
 def robots_txt(request):
     lines = [

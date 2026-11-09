@@ -1,6 +1,6 @@
 """Простая безопасная разметка для информационных страниц.
 
-Пустая строка — новый абзац, «## » — подзаголовок, «- » — пункт списка. Весь текст экранируется,
+Пустая строка — новый абзац, «## » — подзаголовок, «### » — подзаголовок второго уровня, «- » — пункт списка. Весь текст экранируется,
 ссылки и e-mail становятся кликабельными. HTML из текста не выполняется.
 """
 import re
@@ -36,7 +36,11 @@ def simple_markup(text):
             line = line.rstrip()
             if not line:
                 continue
-            if line.startswith("## "):
+            if line.startswith("### "):
+                flush_paragraph()
+                flush_list()
+                out.append(format_html("<h3>{}</h3>", line[4:].strip()))
+            elif line.startswith("## "):
                 flush_paragraph()
                 flush_list()
                 out.append(format_html("<h2>{}</h2>", line[3:].strip()))

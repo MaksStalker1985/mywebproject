@@ -18,7 +18,7 @@
       <span class="status-{{ o.status }}">{{ o.get_status_display }}</span>
       <span>{{ o.provider }}</span>
       <span class="muted">{{ o.created_at|date:"SHORT_DATETIME_FORMAT" }}
-        {% if o.status == "paid" %}{% translate "Отметить заказ как возвращённый? Доступ к скачиванию будет закрыт." as refund_confirm %}
+        {% if o.status == "paid" %}{% translate "Вернуть покупателю деньги за этот заказ? Возврат будет отправлен в платёжную систему, доступ к скачиванию закроется." as refund_confirm %}
         <form method="post" action="{% url 'dashboard:order_refund' o.pk %}" class="inline" onsubmit="return confirm('{{ refund_confirm|escapejs }}')">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="link-btn">{% translate "Возврат" %}</button></form>{% endif %}</span>
     </div>
   {% empty %}

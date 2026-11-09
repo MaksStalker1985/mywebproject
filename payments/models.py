@@ -29,6 +29,8 @@ class Order(models.Model):
     provider_payment_id = models.CharField(_("ID платежа"), max_length=255, blank=True, db_index=True)
     created_at = models.DateTimeField(_("создан"), auto_now_add=True)
     paid_at = models.DateTimeField(_("оплачен"), null=True, blank=True)
+    refund_id = models.CharField(_("ID возврата"), max_length=255, blank=True)
+    refunded_at = models.DateTimeField(_("возврат оформлен"), null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -59,6 +61,21 @@ class Order(models.Model):
             order.save(update_fields=["status", "paid_at", "provider_payment_id"])
         self.refresh_from_db()
         return True
+
+    def mark_refunded(self, refund_id=""):
+        """Возврат денег: доступ к скачиванию закрывается. Идемпотентно."""
+        fields = {"status": self.Status.REFUNDED, "refunded_at": timezone.now()}
+        if refund_id:
+            fields["refund_id"] = refund_id
+        changed = Order.objects.filter(pk=self.pk).exclude(status=self.Status.REFUNDED).update(**fields)
+        self.refresh_from_db()
+        return bool(changed)
+
+    def restore_paid(self):
+        """Возврат отклонён или чарджбэк отменён — доступ возвращается."""
+        changed = Order.objects.filter(pk=self.pk, status=self.Status.REFUNDED).update(status=self.Status.PAID)
+        self.refresh_from_db()
+        return bool(changed)
 
     def mark(self, status):
         Order.objects.filter(pk=self.pk, status=self.Status.PENDING).update(status=status)

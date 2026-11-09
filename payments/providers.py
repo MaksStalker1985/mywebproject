@@ -12,6 +12,7 @@ import hashlib
 import hmac
 import json
 import time
+import urllib.error
 import urllib.request
 
 from django.conf import settings
@@ -29,6 +30,10 @@ class BaseProvider:
     def sync(self, order):
         """Сверяет статус заказа с платёжной системой (на странице возврата)."""
 
+    def refund(self, order, reason=""):
+        """Возвращает деньги за оплаченный заказ через API платёжной системы."""
+        raise NotImplementedError
+
 
 class DemoProvider(BaseProvider):
     """Локальная страница «оплаты» без реальных денег — для разработки и демонстрации."""
@@ -41,6 +46,9 @@ class DemoProvider(BaseProvider):
 
     def start_checkout(self, order, request):
         return reverse("payments:demo_checkout", args=[order.pk])
+
+    def refund(self, order, reason=""):
+        return f"demo-refund-{order.pk}"
 
 
 class StripeProvider(BaseProvider):
@@ -100,6 +108,10 @@ class StripeProvider(BaseProvider):
         event = self.stripe.Webhook.construct_event(payload, signature, settings.STRIPE_WEBHOOK_SECRET)
         return event.to_dict()
 
+    def refund(self, order, reason=""):
+        refund = self.stripe.Refund.create(payment_intent=order.provider_payment_id, metadata={"order_id": str(order.pk)})
+        return refund.id
+
 
 class PaddleProvider(BaseProvider):
     """Paddle Billing: транзакция создаётся на сервере, оплата — в оверлее Paddle.js на нашей странице.
@@ -116,15 +128,39 @@ class PaddleProvider(BaseProvider):
             raise ImproperlyConfigured("Не задан PADDLE_API_KEY")
         self.base_url = "https://sandbox-api.paddle.com" if settings.PADDLE_SANDBOX else "https://api.paddle.com"
 
+    # События, на которые должен быть подписан адрес уведомлений (команда paddle setup-webhook)
+    WEBHOOK_EVENTS = ["transaction.completed", "transaction.paid", "transaction.canceled",
+                      "transaction.past_due", "adjustment.created", "adjustment.updated"]
+
     def _api(self, method, path, payload=None):
         req = urllib.request.Request(
             self.base_url + path,
             method=method,
             data=json.dumps(payload).encode() if payload is not None else None,
-            headers={"Authorization": f"Bearer {settings.PADDLE_API_KEY}", "Content-Type": "application/json"},
+            headers={"Authorization": f"Bearer {settings.PADDLE_API_KEY}", "Content-Type": "application/json",
+                     "Paddle-Version": "1"},
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            return json.load(resp)["data"]
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return json.load(resp)["data"]
+        except urllib.error.HTTPError as exc:
+            # Paddle объясняет ошибку в теле ответа: {"error": {"code": ..., "detail": ...}}
+            try:
+                err = json.load(exc).get("error", {})
+            except ValueError:
+                err = {}
+            raise PaddleError(exc.code, err.get("code", ""), err.get("detail", str(exc))) from exc
+
+    def refund(self, order, reason=""):
+        """Полный возврат: Paddle создаёт корректировку (adjustment), обычно одобряет её в течение
+        нескольких минут и сообщает итог через webhook adjustment.updated."""
+        adjustment = self._api("POST", "/adjustments", {
+            "action": "refund",
+            "type": "full",
+            "transaction_id": order.provider_payment_id,
+            "reason": reason or "Refund requested via TechVault",
+        })
+        return adjustment["id"]
 
     def start_checkout(self, order, request):
         name = f"{order.product.title} {order.product.version}"
@@ -165,6 +201,19 @@ class PaddleProvider(BaseProvider):
                 return
             order.mark_paid(txn["id"])
 
+    @staticmethod
+    def apply_adjustment(order, adj):
+        """Возвраты и чарджбэки из Paddle (в т.ч. оформленные в кабинете Paddle или банком покупателя).
+        Частичный возврат доступ не закрывает."""
+        action, status = adj.get("action"), adj.get("status")
+        if action in {"refund", "chargeback"} and adj.get("type", "full") == "full":
+            if status == "approved":
+                order.mark_refunded(adj.get("id", ""))
+            elif status == "rejected" and order.refund_id == adj.get("id"):
+                order.restore_paid()
+        elif action == "chargeback_reverse" and status == "approved":
+            order.restore_paid()
+
     @classmethod
     def parse_webhook(cls, payload, signature_header):
         """Проверяет заголовок Paddle-Signature (ts=...;h1=...) и возвращает событие."""
@@ -178,6 +227,34 @@ class PaddleProvider(BaseProvider):
         if not settings.PADDLE_WEBHOOK_SECRET or not hmac.compare_digest(expected, received):
             raise ValueError("bad signature")
         return json.loads(payload)
+
+
+class PaddleError(Exception):
+    def __init__(self, status, code, detail):
+        self.status, self.code, self.detail = status, code, detail
+        super().__init__(f"Paddle API {status} {code}: {detail}")
+
+
+def paddle_config_problems():
+    """Список проблем настройки Paddle (пустой — всё в порядке). Используется в check и команде paddle."""
+    problems = []
+    key, token = settings.PADDLE_API_KEY, settings.PADDLE_CLIENT_TOKEN
+    mode = "sandbox" if settings.PADDLE_SANDBOX else "live"
+    if not key:
+        problems.append("PADDLE_API_KEY не задан")
+    elif "_sdbx_" in key and mode == "live":
+        problems.append("PADDLE_API_KEY — ключ песочницы (sandbox), а PADDLE_SANDBOX=0")
+    elif "_live_" in key and mode == "sandbox":
+        problems.append("PADDLE_API_KEY — боевой ключ (live), а PADDLE_SANDBOX=1")
+    if not token:
+        problems.append("PADDLE_CLIENT_TOKEN не задан — окно оплаты не откроется")
+    elif token.startswith("test_") and mode == "live":
+        problems.append("PADDLE_CLIENT_TOKEN — токен песочницы (test_...), а PADDLE_SANDBOX=0")
+    elif token.startswith("live_") and mode == "sandbox":
+        problems.append("PADDLE_CLIENT_TOKEN — боевой токен (live_...), а PADDLE_SANDBOX=1")
+    if not settings.PADDLE_WEBHOOK_SECRET:
+        problems.append("PADDLE_WEBHOOK_SECRET не задан — сайт не узнает об оплатах и возвратах")
+    return problems
 
 
 PROVIDERS = {p.name: p for p in [DemoProvider, StripeProvider, PaddleProvider]}

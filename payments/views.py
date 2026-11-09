@@ -149,11 +149,18 @@ def paddle_webhook(request):
     except ValueError:
         return HttpResponseBadRequest("invalid signature")
 
-    if event.get("event_type", "").startswith("transaction."):
-        txn = event.get("data") or {}
-        order_id = (txn.get("custom_data") or {}).get("order_id")
+    event_type = event.get("event_type", "")
+    data = event.get("data") or {}
+    if event_type.startswith("transaction."):
+        order_id = (data.get("custom_data") or {}).get("order_id")
         order = Order.objects.filter(pk=order_id, provider="paddle").first()
         if order:
             # Неудачная попытка (payment_failed) заказ не отменяет — покупатель может повторить оплату
-            PaddleProvider.apply_transaction(order, txn)
+            PaddleProvider.apply_transaction(order, data)
+    elif event_type.startswith("adjustment."):
+        order = Order.objects.filter(provider="paddle", provider_payment_id=data.get("transaction_id") or "-").first()
+        if order:
+            PaddleProvider.apply_adjustment(order, data)
+        else:
+            log.warning("Paddle %s для неизвестной транзакции %s", event_type, data.get("transaction_id"))
     return HttpResponse(status=200)

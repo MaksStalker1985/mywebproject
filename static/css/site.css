@@ -743,3 +743,4 @@ html.lb-open { overflow: hidden; }
 .lightbox .lb-next { grid-column: 3; grid-row: 1; }
 .lightbox figcaption { flex-wrap: wrap; padding: 0 12px; text-align: center; }
 @media (max-width: 640px) { .lightbox figure { padding: 56px 8px 16px; } }
+.legal h3 { font-size: 1.02rem; margin: 1.2em 0 .4em; color: var(--text); }

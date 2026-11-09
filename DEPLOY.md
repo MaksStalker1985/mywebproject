@@ -75,9 +75,30 @@
 6. **Реквизиты продавца.** Войдите `https://techvault.tech/ru/manage/` → **Страницы** и в
    «Условия использования» и «Политика конфиденциальности» замените строку в квадратных скобках на
    ФОП/компанию, страну и адрес. Платёжные системы проверяют эти страницы перед подключением.
-7. **Платежи.** Впишите ключи Paddle (или Stripe) в `/etc/techvault/techvault.env`,
-   `sudo systemctl restart django-site`. Адреса для Paddle: Default payment link
-   `https://techvault.tech/payments/paddle/pay/`, уведомления `https://techvault.tech/payments/webhook/paddle/`.
+7. **Платежи (Paddle).** Сначала всё проверяется в песочнице (sandbox-vendors.paddle.com, тестовые карты),
+   затем то же самое повторяется в боевом кабинете (vendors.paddle.com).
+   1. **Ключи** — в кабинете Paddle → Developer tools → Authentication:
+      API key (`pdl_sdbx_apikey_…` / `pdl_live_apikey_…`, права на transactions и adjustments — запись,
+      notification settings — запись) и Client-side token (`test_…` / `live_…`). Впишите в
+      `/etc/techvault/techvault.env`:
+      ```
+      PAYMENTS_PROVIDER=paddle
+      PAYMENTS_CURRENCY=USD
+      PADDLE_SANDBOX=1            # 0 — боевой режим
+      PADDLE_API_KEY=pdl_sdbx_apikey_…
+      PADDLE_CLIENT_TOKEN=test_…
+      ```
+   2. **Уведомления** (оплаты, возвраты, чарджбэки) — команда сама создаст адрес в Paddle и напечатает
+      секрет: `sudo techvault-manage paddle setup-webhook https://techvault.tech` → впишите
+      `PADDLE_WEBHOOK_SECRET=…` в тот же файл и `sudo systemctl restart django-site`.
+   3. **В кабинете Paddle:** Checkout → Checkout settings → Default payment link
+      `https://techvault.tech/payments/paddle/pay/`; для боевого режима — Checkout → Website approval
+      (добавьте techvault.tech и дождитесь одобрения).
+   4. **Проверка:** `sudo techvault-manage paddle check` — режим, ключи, доступ к API и подписка на события.
+      Купите платную игру тестовой картой `4242 4242 4242 4242` (любая будущая дата, CVC `100`):
+      заказ в **Панели управления → Заказы** станет «Оплачен», игра — доступна для скачивания.
+   5. **Возврат:** кнопка «Возврат» в **Заказах** отправляет полный возврат в Paddle и закрывает доступ.
+      Возвраты и чарджбэки, оформленные в кабинете Paddle или банком покупателя, сайт получает сам.
 8. **Каталог.** Добавьте игры и программы через **Панель управления → Игры и ПО**, создайте разделы форума.
 9. **Проверка почты.** Выйдите и нажмите «Забыли пароль?» — письмо должно прийти с `support@techvault.tech`.
    Чтобы письма не попадали в спам, в hPanel → Почта → Настройки DNS включите **DKIM** и добавьте **DMARC**

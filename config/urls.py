@@ -15,6 +15,8 @@ urlpatterns = [
     # Переключение языка (POST с полем language)
     path("i18n/", include("django.conf.urls.i18n")),
     path("robots.txt", core_views.robots_txt, name="robots_txt"),
+    *[path(f"{short}/", core_views.legal_shortcut, {"shortcut": short}) for short in core_views.LEGAL_SHORTCUTS],
+    *[path(short, core_views.legal_shortcut, {"shortcut": short}) for short in core_views.LEGAL_SHORTCUTS],
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="django.contrib.sitemaps.views.sitemap"),
     # Адрес считается при запросе: с хешированными именами статики манифест есть только после collectstatic
     path("favicon.ico", lambda request: HttpResponsePermanentRedirect(static_url("img/favicon.png"))),
